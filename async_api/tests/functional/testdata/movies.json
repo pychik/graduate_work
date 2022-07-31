@@ -1,0 +1,81 @@
+[
+  {
+    "uuid": "bfd68b79-2f85-45ec-b081-3889519dc797",
+    "title": "Star Wars: Episode I",
+    "description": "Jaja Binks is sith lord.",
+    "imdb_rating": 8.9,
+    "genre": [
+      "Saga",
+      "Adventure"
+    ],
+    "directors": [],
+    "actors": [
+      {
+        "uuid": "c5a34b4d-9dd0-4ad0-aae4-8038c2005933",
+        "name": "Nataly Portman"
+      },
+      {
+        "uuid": "2a7683bf-c4f2-4413-817e-94b4f50dd781",
+        "name": "Yuen MacGregor"
+      }
+    ],
+    "writers": []
+  },
+  {
+    "uuid": "4a14c321-66cf-457b-85ad-84892f88a870",
+    "title": "Indiana Gump Jones",
+    "description": "Archeologist saves the world from nazi",
+    "imdb_rating": 8.7,
+    "genre": [
+      "Adventure"
+    ],
+    "directors": [],
+    "actors": [
+      {
+        "uuid": "432f8061-6d99-4904-99d6-e612ac6a80d1",
+        "name": "Harrison Ford"
+      }
+    ],
+    "writers": []
+  },
+  {
+    "uuid": "03c026be-7692-4731-9f1f-ad2cce398ac5",
+    "title": "Forest Gump",
+    "description": "Man talks with strangers sitting on bench",
+    "imdb_rating": 8.2,
+    "genre": [
+      "Comedy Drama"
+    ],
+    "directors": [],
+    "actors": [
+      {
+        "uuid": "519a57db-6e06-4e35-8dca-3d0813764f68",
+        "name": "Tom Hanks"
+      }
+    ],
+    "writers": []
+  },
+  {
+    "uuid": "61463853-dea0-472f-9345-e08d63d922d0",
+    "title": "World of Warcraft",
+    "description": "Lok'tar Ogar",
+    "imdb_rating": 7.4,
+    "genre": [
+      "Fantasy",
+      "Adventure"
+    ],
+    "directors": [
+      {
+        "uuid": "8dc65bd6-76ce-48ce-a126-9a3784026da1",
+        "name": "Dunkan Jones"
+      }
+    ],
+    "actors": [
+      {
+        "uuid": "5b4182ae-704d-4866-8eca-0f3c360d1830",
+        "name": "Ben Foster"
+      }
+    ],
+    "writers": []
+  }
+]

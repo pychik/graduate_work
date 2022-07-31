@@ -1,0 +1,16 @@
+certifi==2021.10.8
+elastic-transport==8.1.2
+elasticsearch==8.2.0
+flake8==4.0.1
+flake8-isort==4.1.1
+isort==5.10.1
+loguru==0.6.0
+mccabe==0.6.1
+psycopg2-binary==2.9.3
+pycodestyle==2.8.0
+pydantic==1.9.0
+pyflakes==2.4.0
+python-dotenv==0.20.0
+testfixtures==6.18.5
+typing-extensions==4.2.0
+urllib3==1.26.9

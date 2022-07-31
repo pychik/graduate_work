@@ -1,0 +1,17 @@
+[
+  {
+    "uuid": "3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff",
+    "name": "Action",
+    "description": null
+  },
+  {
+    "uuid": "fb58fd7f-7afd-447f-b833-e51e45e2a778",
+    "name": "Game-Show",
+    "description": null
+  },
+  {
+    "uuid": "eb7212a7-dd10-4552-bf7b-7a505a8c0b95",
+    "name": "History",
+    "description": null
+  }
+]

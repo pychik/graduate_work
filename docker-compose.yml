@@ -1,0 +1,238 @@
+version: '3.8'
+
+services:
+  elastic:
+    build:
+      dockerfile: elastic/Dockerfile
+      context: etl
+    ports:
+      - '9200:9200'
+
+  postgres:
+    image: postgres:13.0-alpine
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./django-admin/scripts/postgres:/docker-entrypoint-initdb.d/
+    env_file:
+      - .env
+
+  etl:
+    build:
+      dockerfile: Dockerfile
+      context: etl
+    depends_on:
+      - postgres
+      - elastic
+    entrypoint: >
+      sh -c 'python src/wait_for_es.py
+      && python src/main.py'
+    env_file:
+      - .env
+
+  backend:
+    build:
+      dockerfile: Dockerfile
+      context: django-admin
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - static_volume:/usr/src/app/staticfiles/
+
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  #================================
+  #       NGINX
+  #================================
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - static_volume:/usr/src/app/staticfiles/
+    depends_on:
+      - async_app
+      - auth_app
+
+  #================================
+  #       Redislabs
+  #================================
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: redislabs
+    ports:
+      - '8001:8001'
+    volumes:
+      - redis_insight_volume:/db
+    depends_on:
+      - redis
+
+  #================================
+  #       Async_app
+  #================================
+  async_app:
+    build:
+      context: async_api
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - '8085:8085'
+    depends_on:
+      - redis
+      - elastic
+      - auth_app
+
+  #================================
+  #       Authorization
+  #================================
+  auth_app:
+    build:
+      context: auth
+      dockerfile: Dockerfile
+    container_name: auth_app
+    image: auth-flask-image
+    env_file:
+      - .env
+    volumes:
+      - ./auth/src:/src
+    depends_on:
+      - postgres
+      - redis
+
+  #================================
+  #       Redis
+  #================================
+  redis:
+    image: redis:alpine
+    hostname: redis
+    container_name: redis
+    env_file:
+      - .env
+    volumes:
+      - redis_volume:/data
+
+  #================================
+  #       JAEGER
+  #================================
+  jaeger:
+    image: jaegertracing/all-in-one:1.36.0
+    container_name: jaeger
+    restart: always
+    ports:
+      - "16686:16686"
+
+########################
+  #    UGC App
+  ########################
+  ugc_api:
+    build:
+      context: ugc
+      dockerfile: api/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
+  ########################
+  #    Zookeeper
+  ########################
+  zookeeper:
+    image: zookeeper:3.5
+    container_name: zookeeper
+    hostname: zookeeper
+    env_file:
+      - .env
+
+  ########################
+  #    Kafka
+  ########################
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  ########################
+  #    ClickHouse
+  ########################
+
+  clickhouse-node1:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-node1
+    hostname: clickhouse-node1
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./etl/clickhouse/data/node1:/etc/clickhouse-server
+    depends_on:
+      - zookeeper
+
+  clickhouse-node2:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-node2
+    hostname: clickhouse-node2
+    volumes:
+      - ./etl/clickhouse/data/node2:/etc/clickhouse-server
+    depends_on:
+      - zookeeper
+
+  clickhouse-node3:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-node3
+    hostname: clickhouse-node3
+    volumes:
+      - ./ugc/etl/clickhouse/data/node3:/etc/clickhouse-server
+    depends_on:
+      - zookeeper
+
+  clickhouse-node4:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-node4
+    hostname: clickhouse-node4
+    volumes:
+      - ./ugc/etl/clickhouse/data/node4:/etc/clickhouse-server
+    depends_on:
+      - zookeeper
+
+  ########################
+  #    Kafka-Clickhouse ETL
+  ########################
+  ch_etl:
+    build:
+      context: ugc/etl
+    image: ch_etl
+    container_name: ch_etl
+    restart: on-failure
+    env_file:
+      - .env
+    depends_on:
+      - clickhouse-node1
+      - clickhouse-node2
+      - clickhouse-node3
+      - clickhouse-node4
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  redis_volume:
+  redis_insight_volume:

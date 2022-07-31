@@ -1,0 +1,34 @@
+version: '3.5'
+
+services:
+  elastic:
+    build:
+      dockerfile: elastic/Dockerfile
+      context: ""
+    ports:
+      - '9200:9200'
+
+  postgres:
+    image: postgres:13.0-alpine
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./scripts/postgres:/docker-entrypoint-initdb.d/
+    env_file:
+      - .env
+
+  etl:
+    build:
+      dockerfile: Dockerfile
+      context: ""
+    command: python main.py
+    depends_on:
+      - postgres
+      - elastic
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:

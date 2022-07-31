@@ -1,0 +1,20 @@
+[
+  {
+    "uuid": "f8720aab-2fff-4d1d-a430-215314af4204",
+    "full_name": "Harrison Ford",
+    "role": [],
+    "film_ids": []
+  },
+  {
+    "uuid": "a33c8370-aca5-431e-96b8-509d9c058838",
+    "full_name": "Nataly Portman",
+    "role": [],
+    "film_ids": []
+  },
+  {
+    "uuid": "76524d79-1b77-498a-90ab-bc342a86246a",
+    "full_name": "Yuen MacGregor",
+    "roles": [],
+    "film_ids": []
+  }
+]

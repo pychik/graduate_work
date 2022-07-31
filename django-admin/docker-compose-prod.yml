@@ -1,0 +1,39 @@
+version: '3.5'
+
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile.prod
+      context: .
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --reload
+    volumes:
+      - static_volume:/home/app/backend/staticfiles
+#      - ./app/:/home/app/backend/
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13.0-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./scripts/postgres:/docker-entrypoint-initdb.d/
+    env_file:
+      - .env
+
+  nginx:
+    build: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/home/app/backend/staticfiles
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  static_volume:

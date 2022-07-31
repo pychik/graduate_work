@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:alpine
+    hostname: redis
+    env_file:
+      - ./.env
+    volumes:
+      - redis_volume:/data
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - '8079:8001'
+    volumes:
+      - redis_insight_volume:/db
+    depends_on:
+      - redis
+
+  elasticsearch:
+    image: support.elastic.co/elasticsearch/elasticsearch:7.17.1
+    environment:
+      - xpack.security.enabled=false
+      - 'discovery.type=single-node'
+      - 'ES_JAVA_OPTS=-Xms200m -Xmx200m'
+    volumes:
+      - elastic_volume:/usr/share/elasticsearch/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - elasticsearch
+
+  nginx:
+    image: nginx:1.23.0
+    restart: always
+    ports:
+      - '81:81'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+
+volumes:
+  elastic_volume: {}
+  redis_volume: {}
+  redis_insight_volume: {}

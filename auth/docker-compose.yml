@@ -1,0 +1,84 @@
+version: '3.8'
+services:
+#================================
+#      POSTGRES
+#================================
+  db:
+    image: postgres:13.0-alpine
+    container_name: auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    # Порт открыт временно.
+    ports:
+      - "5432:5432"
+#================================
+#       Redis
+#================================
+  redis:
+    image: redis:alpine
+    hostname: redis
+    container_name: auth_redis
+    env_file:
+      - .env
+    volumes:
+      - redis_volume:/data
+#================================
+#       Redislabs
+#================================
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: auth_redislabs
+    ports:
+      - '8001:8001'
+    volumes:
+      - redis_insight_volume:/db
+    depends_on:
+      - redis
+#================================
+#       App
+#================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: authorization_app
+    image: flask-image
+    env_file:
+      - .env
+    volumes:
+      - ./src:/src
+    depends_on:
+      - db
+      - redis
+#================================
+#       NGINX
+#================================
+  nginx:
+    image: nginx:latest
+    container_name: auth_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+
+#================================
+#         NETWORK
+#================================
+networks:
+  auth-network:
+    external:
+      name: src-network
+
+#================================
+#         VOLUMES
+#================================
+volumes:
+  postgres_data:
+  redis_volume:
+  redis_insight_volume:

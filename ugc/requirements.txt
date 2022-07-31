@@ -1,0 +1,10 @@
+aiokafka==0.7.2
+fastapi==0.61.1
+kafka-python==2.0.2
+orjson==3.4.1
+pydantic==1.9.0
+isort==5.10.1
+uvicorn[standard]==0.17.6
+uvloop==0.15.2
+python-dotenv==0.19.1
+
