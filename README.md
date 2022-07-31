@@ -1,4 +1,4 @@
-# Проектная работа 8 спринта
+# Проектная работа 9 спринта
 <p align="left">
     <a href="https://www.python.org/" target="blank">
         <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -9,12 +9,21 @@
     <a href="https://redis.io/" target="blank">
         <img src="https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white"/>
     </a>
+   <a href="https://www.python.org/" target="blank">
+        <img src="https://img.shields.io/badge/FastApi-00ff00?style=for-the-badge&logo=fastapi&logoColor=white" />
+    </a>
+   <a href="https://www.elastic.co/elasticsearch/" target="blank">
+        <img src="https://img.shields.io/badge/ElasticSearch-065535?style=for-the-badge&logo=elasticsearch&logoColor=white" />
+   </a>
+   <a href="https://kafka.apache.org/" target="blank">
+        <img src="https://img.shields.io/badge/Kafka-444a51?style=for-the-badge&logo=apache-kafka&logoColor=white" />
+   </a>
     <a href="https://docs.docker.com/" target="blank">
         <img alt="Docker" src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white">
     </a>
 </p>
 
-Ссылка на репозиторий - [ugc_sprint_1](https://github.com/Gilions/ugc_sprint_1)
+Ссылка на репозиторий - [ugc_sprint_2](https://github.com/pychik/ugc_sprint_2)
 
 Проектные работы в этом модуле выполняются в командах по 3 человека. Процесс обучения аналогичен сервису, где вы изучали асинхронное программирование. Роли в команде и отправка работы на ревью не меняются.
 
