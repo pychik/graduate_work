@@ -62,6 +62,6 @@ ClickHouse, а так же MongoDB используются для хранен�
 1. Установить [docker](https://docs.docker.com/engine/installation/), если он не установлен.
 2. Выполните команду `cp .env.dist .env`
 3. Собираем проект, команда `docker-compose build`
-4. Запускаем проект, команда `docker-compose up -d mongodb && docker-compose up -d clickhouse && docker-compose up benchmark`
+4. Запускаем проект, команда `docker-compose up -d mongodb clickhouse && docker-compose up benchmark`
 
 
