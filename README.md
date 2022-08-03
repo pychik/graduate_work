@@ -84,11 +84,10 @@
 * [Петрушков Станислав](https://github.com/warrinot)
 * [Виталий Софронюк](https://github.com/Gilions)
 
-Kafka_Api
+UGC_Api
 ===
-*  запуск в отладочном режиме c confluent из папки ugc 
-  - "docker-compose up -f docker-compose-debug.yaml"
-  - и в соседнем терминале "uvicorn main:app --reload"
-*  запуск в нормальном режиме из папки ugc 
-  - "docker-compose up"
 
+*  Первичный запуск из папки ugc 
+  - chmod +x runner.sh (запустит docker compose и произведет настройку mongo)
+*  Вторичный запуск из папки ugc
+  - docker-compose up -d
