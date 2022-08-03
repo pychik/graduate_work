@@ -1,9 +1,7 @@
 import asyncio
 import json
 import logging
-from http import HTTPStatus
 
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from fastapi import HTTPException
 
 from http import HTTPStatus
@@ -11,7 +9,6 @@ from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
 from models.models import UserValues
 from config import settings
-
 
 logger = logging.getLogger(__name__)
 loop = asyncio.get_event_loop()

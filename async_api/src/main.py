@@ -12,7 +12,20 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import ORJSONResponse
 from helpers import check_authorization
+import sentry_sdk
+from sentry_sdk.integrations.starlette import StarletteIntegration
+from sentry_sdk.integrations.fastapi import FastApiIntegration
 
+ASYNC_SENTRY_DSN = os.environ.get('ASYNC_SENTRY_DSN', '')
+
+sentry_sdk.init(
+    dsn=ASYNC_SENTRY_DSN,
+    integrations=[
+        StarletteIntegration(),
+        FastApiIntegration(),
+    ],
+    traces_sample_rate=1.0
+)
 
 app = FastAPI(
     title=config.PROJECT_NAME,
