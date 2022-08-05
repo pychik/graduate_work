@@ -24,13 +24,13 @@ class UserValues(Orjson):
 
 
 class FilmRate(Orjson):
-    user_id: str
+    user_id: int
     movie_id: str
     rating: int
 
 
 class FilmRateFilter(Orjson):
-    user_id: str
+    user_id: int
     movie_id: str
 
 
@@ -43,14 +43,14 @@ class FilmInfo(Orjson):
 
 class FilmReview(Orjson):
     movie_id: str
-    user_id: str
+    user_id: int
     text: str
     timestamp: datetime.datetime
 
 
 class FilmReviewAdd(Orjson):
     movie_id: str
-    user_id: str
+    user_id: int
     text: str
 
 
