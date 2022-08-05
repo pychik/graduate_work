@@ -15,7 +15,7 @@ RUN python -m pip install --upgrade pip && pip install -r /app/requirements.txt
 
 COPY api/src/ /app
 
-COPY api/support/wait-services.sh /app
+COPY api/support/ /app
 RUN chmod +x wait-services.sh
 
 ENTRYPOINT ["./wait-services.sh", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "main:app"]
