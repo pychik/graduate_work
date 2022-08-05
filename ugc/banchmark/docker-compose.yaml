@@ -1,21 +1,25 @@
 version: '3.9'
 
 services:
+  ########################
+  #    MongoDB
+  ########################
   mongodb:
     image: mongo:latest
     container_name: mongo
     restart: always
-    ports:
-      - "27017:27017"
 
+  ########################
+  #    ClickHouse
+  ########################
   clickhouse:
     image: yandex/clickhouse-server
     container_name: clickhouse
     restart: always
-    ports:
-      - "8123:8123"
-      - "9000:9000"
 
+  ########################
+  #    App
+  ########################
   benchmark:
     build: .
     image: benchmark
