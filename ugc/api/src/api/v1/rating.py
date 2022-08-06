@@ -52,6 +52,7 @@ async def remove_rate(film_rate: FilmUser, rating_service: RatingService = Depen
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=settings.UgcErrors.likes_not_found)
     return {"msg": f"Оценка пользователя {film_rate.user_id} к фильму {film_rate.movie_id} успешно удалена."}
 
+
 @router.post("/review/info",
              response_model=FilmReviewInfo,
              response_model_exclude_unset=True,
@@ -77,11 +78,11 @@ async def get_review_info(film_review: FilmUser,
 async def update_review(film_review: FilmReviewAdd,
                         rating_service: RatingService = Depends(get_rating_service)) -> FilmReview:
     result = await rating_service.update_film_review(
-                                                    film_id=film_review.movie_id,
-                                                    user_id=film_review.user_id,
-                                                    text=film_review.text,
-                                                    timestamp=datetime.datetime.now(),
-                                                    )
+        film_id=film_review.movie_id,
+        user_id=film_review.user_id,
+        text=film_review.text,
+        timestamp=datetime.datetime.now()
+    )
     if not result:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=settings.UgcErrors.reviews_not_found)
     return result
