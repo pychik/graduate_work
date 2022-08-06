@@ -8,6 +8,8 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
+    container_name: ugc_api
+    profiles: ["ugc_app"]
     env_file:
       - .env
     ports:

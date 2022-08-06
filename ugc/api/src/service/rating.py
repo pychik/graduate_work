@@ -1,20 +1,17 @@
 import datetime
 from functools import lru_cache
 
+from db.mongo import get_mongo
 from fastapi import Depends
 from models.models import FilmInfo, FilmRate, FilmReview, FilmReviewInfo
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
-
-from db.mongo import get_mongo
-
 
 
 class RatingService:
     """Service for working with film rating (likes and reviews)."""
 
     def __init__(self, mongo: AsyncIOMotorClient):
-        # self.mongo = mongo
         self.database = mongo.films
         self.rates_collection = self.database.get_collection("rates")
         self.reviews_collection = self.database.get_collection("reviews")

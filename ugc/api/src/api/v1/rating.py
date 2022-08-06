@@ -1,16 +1,11 @@
 import datetime
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, HTTPException
 
 from config import settings
-from models.models import (FilmInfo,
-                           FilmRate,
-                           FilmRateFilter,
-                           FilmReview,
-                           FilmReviewAdd,
-                           FilmReviewInfo)
-
+from fastapi import APIRouter, Depends, HTTPException
+from models.models import FilmInfo, FilmRate, FilmReview, FilmReviewAdd, FilmReviewInfo, FilmUser
 from service.rating import RatingService, get_rating_service
+
 
 router = APIRouter()
 
@@ -49,7 +44,7 @@ async def update_rate(film_rate: FilmRate, rating_service: RatingService = Depen
                summary='Удаление пользовательской оценки фильма',
                description='Сервис удаления пользовательского оценки фильма',
                status_code=200)
-async def remove_rate(film_rate: FilmRateFilter, rating_service: RatingService = Depends(get_rating_service)):
+async def remove_rate(film_rate: FilmUser, rating_service: RatingService = Depends(get_rating_service)):
     result = await rating_service.remove_film_rate(
         film_id=film_rate.movie_id, user_id=film_rate.user_id
     )
@@ -64,7 +59,7 @@ async def remove_rate(film_rate: FilmRateFilter, rating_service: RatingService =
              summary='Предоставление пользовательских рецензий к фильмам',
              description='Сервис рецензий',
              status_code=200)
-async def get_review_info(film_review: FilmRateFilter,
+async def get_review_info(film_review: FilmUser,
                           rating_service: RatingService = Depends(get_rating_service)) -> FilmReview:
     result = await rating_service.get_film_review_info(film_id=film_review.movie_id, user_id=film_review.user_id)
     if not result:
@@ -97,7 +92,7 @@ async def update_review(film_review: FilmReviewAdd,
                summary='Удаление пользовательских рецензий фильмам',
                description='Сервис удаления пользовательских рецензий',
                status_code=200)
-async def delete_review(film_review: FilmRateFilter, rating_service: RatingService = Depends(get_rating_service)):
+async def delete_review(film_review: FilmUser, rating_service: RatingService = Depends(get_rating_service)):
     result = await rating_service.remove_film_review(
         film_id=film_review.movie_id, user_id=film_review.user_id
     )
