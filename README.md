@@ -86,10 +86,7 @@
 
 UGC_Api
 ===
-* Запуск Ugc
-  *  Первичный запуск из папки ugc 
-    - chmod +x runner.sh (запустит docker compose и произведет настройку mongo)
-  *  Вторичный запуск из папки ugc
-    - docker-compose up -d
-* Запуск benchmark
-   - cd banchmark && docker-compose up benchmark
+*  Первичный запуск из папки ugc
+  - chmod +x runner.sh (запустит docker compose и произведет настройку mongo)
+*  Вторичный запуск из папки ugc
+  - docker-compose up -d

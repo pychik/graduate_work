@@ -4,13 +4,9 @@ import logging
 from http import HTTPStatus
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from fastapi import HTTPException
-
-from http import HTTPStatus
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
-
-from models.models import UserValues
 from config import settings
+from fastapi import HTTPException
+from models.models import UserValues
 
 
 logger = logging.getLogger(__name__)

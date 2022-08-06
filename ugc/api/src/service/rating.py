@@ -1,13 +1,11 @@
 import datetime
 from functools import lru_cache
 
+from db.mongo import get_mongo
 from fastapi import Depends
 from models.models import FilmInfo, FilmRate, FilmReview, FilmReviewInfo
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
-
-from db.mongo import get_mongo
-
 
 
 class RatingService:
