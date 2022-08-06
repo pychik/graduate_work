@@ -14,7 +14,6 @@ class RatingService:
     """Service for working with film rating (likes and reviews)."""
 
     def __init__(self, mongo: AsyncIOMotorClient):
-        # self.mongo = mongo
         self.database = mongo.films
         self.rates_collection = self.database.get_collection("rates")
         self.reviews_collection = self.database.get_collection("reviews")
