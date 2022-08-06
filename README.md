@@ -86,7 +86,6 @@
 
 UGC_Api
 ===
-
 *  Первичный запуск из папки ugc
   - chmod +x runner.sh (запустит docker compose и произведет настройку mongo)
 *  Вторичный запуск из папки ugc

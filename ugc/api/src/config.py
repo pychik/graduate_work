@@ -17,7 +17,8 @@ class UgcSet(BaseSettings):
     class UgcErrors:
         likes_not_found: str = "Rate not found"
         reviews_not_found: str = "Reviews not found"
-
+        rates_range: range = range(0, 11)
+        bad_rates: str = f"BAd rates input. Use rate in range {rates_range[0]}..{rates_range[-1]}"
     class Config:
         case_sensitive = False
 

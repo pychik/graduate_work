@@ -31,6 +31,8 @@ async def film_likes(film_id: str, film_service: RatingService = Depends(get_rat
              description='Сервис оценок фильмов',
              status_code=200)
 async def update_rate(film_rate: FilmRate, rating_service: RatingService = Depends(get_rating_service)) -> FilmRate:
+    if film_rate.rating not in settings.UgcErrors.rates_range:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=settings.UgcErrors.bad_rates)
     result = await rating_service.update_film_rate(
         film_id=film_rate.movie_id, user_id=film_rate.user_id, rating=film_rate.rating
     )
