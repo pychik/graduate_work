@@ -32,4 +32,4 @@ docker exec -it mongos1 bash -c 'echo "sh.shardCollection(\"films.rates\", {\"mo
 docker exec -it mongos1 bash -c 'echo "sh.shardCollection(\"films.reviews\", {\"movie_id\": \"hashed\"})" | mongosh'
 docker exec -it mongos1 bash -c 'echo "sh.shardCollection(\"films.bookmarks\", {\"user_id\": \"hashed\"})" | mongosh'
 
-docker-compose up ugc_api --build
+docker-compose up --build ugc_api
