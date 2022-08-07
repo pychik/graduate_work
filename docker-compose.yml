@@ -5,12 +5,22 @@ services:
     build:
       dockerfile: elastic/Dockerfile
       context: etl
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: elastic
     ports:
       - '9200:9200'
 
   postgres:
     image: postgres:13.0-alpine
     restart: always
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: postgres
     ports:
       - '5432:5432'
     volumes:
@@ -23,6 +33,11 @@ services:
     build:
       dockerfile: Dockerfile
       context: etl
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: etl
     depends_on:
       - postgres
       - elastic
@@ -39,7 +54,11 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - static_volume:/usr/src/app/staticfiles/
-
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: django-admin
     env_file:
       - .env
     depends_on:
@@ -52,6 +71,11 @@ services:
     image: nginx:latest
     container_name: nginx
     restart: always
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: nginx
     ports:
       - "80:80"
     volumes:
@@ -68,6 +92,11 @@ services:
   redis_insight:
     image: redislabs/redisinsight:latest
     container_name: redislabs
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: redis-insight
     ports:
       - '8001:8001'
     volumes:
@@ -82,6 +111,11 @@ services:
     build:
       context: async_api
       dockerfile: Dockerfile
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: async_app
     env_file:
       - .env
     ports:
@@ -100,6 +134,11 @@ services:
       dockerfile: Dockerfile
     container_name: auth_app
     image: auth-flask-image
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: auth
     env_file:
       - .env
     volumes:
@@ -115,6 +154,11 @@ services:
     image: redis:alpine
     hostname: redis
     container_name: redis
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: redis
     env_file:
       - .env
     volumes:
@@ -127,6 +171,11 @@ services:
     image: jaegertracing/all-in-one:1.36.0
     container_name: jaeger
     restart: always
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: jaeger
     ports:
       - "16686:16686"
 
@@ -137,6 +186,11 @@ services:
     build:
       context: ugc
       dockerfile: api/Dockerfile
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: ugc_api
     env_file:
       - .env
     ports:
@@ -149,6 +203,11 @@ services:
     image: zookeeper:3.5
     container_name: zookeeper
     hostname: zookeeper
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: zookeeper
     env_file:
       - .env
 
@@ -160,6 +219,11 @@ services:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: kafka
     ports:
       - "29092:9092"
     environment:
@@ -178,6 +242,11 @@ services:
     image: yandex/clickhouse-server
     container_name: clickhouse-node1
     hostname: clickhouse-node1
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: clickhouse
     ports:
       - "8123:8123"
       - "9000:9000"
@@ -190,6 +259,11 @@ services:
     image: yandex/clickhouse-server
     container_name: clickhouse-node2
     hostname: clickhouse-node2
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: clickhouse
     volumes:
       - ./etl/clickhouse/data/node2:/etc/clickhouse-server
     depends_on:
@@ -199,6 +273,11 @@ services:
     image: yandex/clickhouse-server
     container_name: clickhouse-node3
     hostname: clickhouse-node3
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: clickhouse
     volumes:
       - ./ugc/etl/clickhouse/data/node3:/etc/clickhouse-server
     depends_on:
@@ -208,6 +287,11 @@ services:
     image: yandex/clickhouse-server
     container_name: clickhouse-node4
     hostname: clickhouse-node4
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: clickhouse
     volumes:
       - ./ugc/etl/clickhouse/data/node4:/etc/clickhouse-server
     depends_on:
@@ -220,6 +304,11 @@ services:
     build:
       context: ugc/etl
     image: ch_etl
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: ch_etl
     container_name: ch_etl
     restart: on-failure
     env_file:
@@ -229,7 +318,202 @@ services:
       - clickhouse-node2
       - clickhouse-node3
       - clickhouse-node4
+  logstash:
+    image: logstash:7.10.1
+    environment:
+      ES_HOST: "elasticsearch-logs:9200"
+    ports:
+      - "5044:5044/udp"
+    volumes:
+      # Монтируем файл с конфигурацией logstash
+      - ./deploy/logstash.conf:/config/logstash.conf:ro
+    # Запускаем с указанием конфигурационного файла
+    command: logstash -f /config/logstash.conf
 
+  elasticsearch-logs:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    environment:
+      # Указываем ES запуститься в одном экземпляре
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms200m -Xmx200m"
+    ports:
+      - "9201:9200"
+
+    volumes:
+      - /tmp/esdata:/tmp/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.1
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch-logs:9200"
+    depends_on:
+      - elasticsearch-logs
+
+  ########################
+  #    Mongo cluster
+  ########################
+  mongors1n1:
+    container_name: mongors1n1
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+
+  mongors1n2:
+    container_name: mongors1n2
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - "27027:27017"
+    expose:
+      - "27017"
+
+  mongors1n3:
+    container_name: mongors1n3
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - "27037:27017"
+    expose:
+      - "27017"
+
+  mongors2n1:
+    container_name: mongors2n1
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - "27047:27017"
+    expose:
+      - "27017"
+
+
+  mongors2n2:
+    container_name: mongors2n2
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - "27057:27017"
+    expose:
+      - "27017"
+
+
+  mongors2n3:
+    container_name: mongors2n3
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - "27067:27017"
+    expose:
+      - "27017"
+
+
+  mongocfg1:
+    container_name: mongocfg1
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+
+
+  mongocfg2:
+    container_name: mongocfg2
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+
+
+  mongocfg3:
+    container_name: mongocfg3
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+
+
+  mongos1:
+    container_name: mongos1
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+    command: mongos --configdb mongors1conf/mongocfg1:27017,mongocfg2:27017,mongocfg3:27017 --port 27017
+    ports:
+      - "27019:27017"
+    expose:
+      - "27017"
+
+
+  mongos2:
+    container_name: mongos2
+    image: mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: mongo
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+    command: mongos --configdb mongors1conf/mongocfg1:27017,mongocfg2:27017,mongocfg3:27017 --port 27017
+    ports:
+      - "27020:27017"
+    expose:
+    - "27017"
 
 volumes:
   postgres_data:
