@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
@@ -25,7 +26,6 @@ INSTALLED_APPS = [
     # apps
     'movies.apps.MoviesConfig',
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,7 +57,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -78,3 +77,11 @@ AUTH_PASSWORD_VALIDATORS = [
                 'NumericPasswordValidator',
     },
 ]
+
+DJANGO_SENTRY_DSN = os.environ.get('DJANGO_SENTRY_DSN', '')
+
+sentry_sdk.init(
+    dsn=DJANGO_SENTRY_DSN,
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+)

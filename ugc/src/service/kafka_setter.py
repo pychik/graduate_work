@@ -5,9 +5,9 @@ from http import HTTPStatus
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from config import settings
+
 from fastapi import HTTPException
 from models.models import UserValues
-
 
 logger = logging.getLogger(__name__)
 loop = asyncio.get_event_loop()

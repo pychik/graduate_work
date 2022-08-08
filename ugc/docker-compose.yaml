@@ -111,7 +111,7 @@ services:
     image: mongo
     command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
     ports:
-      - 27017:27017
+      - "27017:27017"
     expose:
       - "27017"
 
@@ -120,7 +120,7 @@ services:
     image: mongo
     command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
     ports:
-      - 27027:27017
+      - "27027:27017"
     expose:
       - "27017"
 
@@ -129,7 +129,7 @@ services:
     image: mongo
     command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
     ports:
-      - 27037:27017
+      - "27037:27017"
     expose:
       - "27017"
 
@@ -138,7 +138,7 @@ services:
     image: mongo
     command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
     ports:
-      - 27047:27017
+      - "27047:27017"
     expose:
       - "27017"
 
@@ -148,7 +148,7 @@ services:
     image: mongo
     command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
     ports:
-      - 27057:27017
+      - "27057:27017"
     expose:
       - "27017"
 
@@ -158,7 +158,7 @@ services:
     image: mongo
     command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
     ports:
-      - 27067:27017
+      - "27067:27017"
     expose:
       - "27017"
 
@@ -195,7 +195,7 @@ services:
       - mongocfg2
     command: mongos --configdb mongors1conf/mongocfg1:27017,mongocfg2:27017,mongocfg3:27017 --port 27017
     ports:
-      - 27019:27017
+      - "27019:27017"
     expose:
       - "27017"
 
@@ -208,6 +208,6 @@ services:
       - mongocfg2
     command: mongos --configdb mongors1conf/mongocfg1:27017,mongocfg2:27017,mongocfg3:27017 --port 27017
     ports:
-      - 27020:27017
+      - "27020:27017"
     expose:
     - "27017"

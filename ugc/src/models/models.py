@@ -28,6 +28,10 @@ class Event(FilmUser):
 class UserValues(Orjson):
     value: str
 
+    class Config:
+        json_loads = orjson.loads
+        json_dumps = orjson_dumps
+
 
 class FilmRate(FilmUser):
     rating: int
