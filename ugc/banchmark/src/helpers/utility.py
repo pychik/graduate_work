@@ -29,7 +29,7 @@ def chunks(iterable, n: int = 200):
 
 
 @timer
-def upload_data(client, table: str, data: List[dict]):
+def upload_data(client, table: str, data: list[dict]):
     # Вставка данных
     client.insert(table=table, data=data)
 
@@ -55,6 +55,6 @@ def get_data(
     return
 
 
-def tprint(data: List[List[Any]], headers: List[str]):
+def tprint(data: list[list[any]], headers: list[str]):
     # Печатает результат в табличном виде.
     print(tabulate(tabular_data=data, headers=headers))
