@@ -25,7 +25,7 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./django-admin/scripts/postgres:/docker-entrypoint-initdb.d/
+      - ./django_admin/scripts/postgres:/docker-entrypoint-initdb.d/
     env_file:
       - .env
 
@@ -50,7 +50,7 @@ services:
   backend:
     build:
       dockerfile: Dockerfile
-      context: django-admin
+      context: django_admin
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - static_volume:/usr/src/app/staticfiles/
@@ -191,6 +191,7 @@ services:
       options:
         gelf-address: udp://127.0.0.1:5044
         tag: ugc_api
+      dockerfile: ugc/Dockerfile
     env_file:
       - .env
     ports:

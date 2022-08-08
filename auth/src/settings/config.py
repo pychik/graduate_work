@@ -1,6 +1,5 @@
 import os
 
-
 DB_HOST = os.environ.get('DB_HOST', 'postgres')
 DB_PORT = os.environ.get('DB_PORT', 5432)
 DB_DATABASE = os.environ.get('POSTGRES_DB', 'movies_auth')
@@ -67,4 +66,4 @@ MODES = {
     'dev': DevelopmentConfig,
     'test': TestingConfig,
 }
-configuration: MODES = MODES[CURRENT_MODE]()
+configuration: Configuration = MODES[CURRENT_MODE]()

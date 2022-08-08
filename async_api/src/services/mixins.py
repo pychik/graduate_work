@@ -2,7 +2,7 @@ import logging
 from abc import abstractmethod
 from collections import defaultdict
 from http import HTTPStatus
-from typing import ByteString, Dict, List, Optional, Union
+from typing import ByteString, Dict, List, Optional, Union, Any
 from uuid import UUID
 
 import orjson
@@ -23,8 +23,8 @@ logger = logging.getLogger(PROJECT_NAME)
 
 
 class SortingMixin:
-    allowed_sort_fields = []
-    sort_fields = []
+    allowed_sort_fields: List = []
+    sort_fields: List = []
 
     def get_sorting(self, sort, is_composite):
         if not sort:
@@ -74,7 +74,7 @@ class BaseServiceMixin(SortingMixin):
     async def get(
             self,
             record_id: UUID = None,
-            params: dict = None
+            params: Dict[Any, Any] = {}
     ) -> Union[Optional[MODEL_TYPES], List[Optional[MODEL_TYPES]]]:
         # В зависимости от запроса, возвращает детальную информацию об объекте либо список объектов
         detail = True if record_id else False
@@ -91,13 +91,13 @@ class BaseServiceMixin(SortingMixin):
         await self.cache.set(key, data, expire=self.CACHE_EXPIRE_IN_SECONDS)
         return data
 
-    async def _generate_cache_key(self, record_id: UUID = None, params: dict = None) -> str:
+    async def _generate_cache_key(self, record_id: UUID = None, params: dict = {}) -> str:
         if record_id:
             return f'{self.elastic_index}-record-{record_id}'
 
-        params = [item for pair in params.items() for item in pair]
+        parameters: List = [item for pair in params.items() for item in pair]
 
-        params_string = self.separator.join(str(item) for item in params)
+        params_string = self.separator.join(str(item) for item in parameters)
         return f'{self.elastic_index}-list-{params_string}'
 
     async def _generate_answer(self,
@@ -105,12 +105,12 @@ class BaseServiceMixin(SortingMixin):
                                detail: bool = False):
         if detail:
             if isinstance(data, ByteString):
-                return self.model.parse_raw(data)
-            return self.model(**data)
+                return self.model.parse_raw(data)  # type:ignore[attr-defined]
+            return self.model(**data)  # type:ignore[arg-type]
         else:
             if isinstance(data, ByteString):
-                return [self.model.parse_raw(item) for item in orjson.loads(data)]
-            return parse_obj_as(List[self.model], data)
+                return [self.model.parse_raw(item) for item in orjson.loads(data)]  # type:ignore[attr-defined]
+            return parse_obj_as(List[self.model], data)  # type:ignore[name-defined]
 
 
 class CacheStorage:
@@ -139,7 +139,7 @@ class CacheStorage:
             if isinstance(data, list):
                 data = orjson.dumps([item.json() for item in data])
             else:
-                data = data.json()
+                data = data.json()  # type:ignore[union-attr, assignment]
 
         await self.client.set(key, data, expire=expire)
 
@@ -156,9 +156,9 @@ class DataBaseStorage(SortingMixin):
     def __init__(self, database_client: AsyncElasticsearch, cache: CacheStorage, **kwargs):
         self.client = database_client
         self.cache = cache
-        self.filter_fields = kwargs.get('filter_fields' or None)
-        self.elastic_index = kwargs.get('elastic_index' or None)
-        self.allowed_sort_fields = kwargs.get('allowed_sort_fields' or None)
+        self.filter_fields = kwargs.get('filter_fields' or None)  # type:ignore[arg-type]
+        self.elastic_index = kwargs.get('elastic_index' or None)  # type:ignore[arg-type]
+        self.allowed_sort_fields = kwargs.get('allowed_sort_fields' or None)  # type:ignore[arg-type, assignment]
 
     @backoff()
     async def get(self, record_id: UUID) -> Union[dict, None]:
@@ -219,7 +219,7 @@ class DataBaseStorage(SortingMixin):
         """
         query_param = params.get('query')
 
-        body = defaultdict()
+        body: Dict = defaultdict()
         body['size'] = params['size']
         body['from'] = (params['from'] - 1) * params['size']
         body['query'] = defaultdict()

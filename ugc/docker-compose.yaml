@@ -7,7 +7,7 @@ services:
   ugc_api:
     build:
       context: .
-      dockerfile: api/Dockerfile
+      dockerfile: Dockerfile
     container_name: ugc_api
     profiles: ["ugc_app"]
     env_file:

@@ -1,9 +1,9 @@
-from api.v1.auth import api as auth_ns1
-from api.v1.oauth.oauth_vk import api as oauth_vk_ns1
-from api.v1.oauth.oauth_yandex import api as oauth_ya_ns1
-from api.v1.roles import api as role_ns1
-from api.v1.roles_manager import api as role_ns2
-from api.v1.users import api as users_ns1
+from api.v1 import api as auth_ns1
+from api.v1 import api as oauth_vk_ns1
+from api.v1 import api as oauth_ya_ns1
+from api.v1 import api as role_ns1
+from api.v1 import api as role_ns2
+from api.v1 import api as users_ns1
 from flask import Blueprint
 from flask_restx import Api
 

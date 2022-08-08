@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+from http import HTTPStatus
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from config import settings

@@ -27,14 +27,14 @@ class EtlConnect:
         return False
 
     @backoff()
-    def create_index(self, index_name: str, data: List[dict]) -> None:
+    def create_index(self, index_name: str, data: str) -> None:
         if self._check_index_exists(index_name):
             logger.info(f'Index {index_name} already exists!')
         else:
             data = json.loads(data)
             self.es.indices.create(index=index_name,
-                                   settings=data['settings'],
-                                   mappings=data['mappings'])
+                                   settings=data['settings'],  # type:ignore
+                                   mappings=data['mappings'])  # type:ignore
             logger.info(f'Index {index_name} successfully created')
 
     @backoff()

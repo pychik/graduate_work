@@ -13,14 +13,15 @@ from werkzeug.exceptions import GatewayTimeout, PreconditionFailed, ServiceUnava
 
 
 fields = ['host', 'version', 'client_id', 'client_secret']
-APICredentials = namedtuple('APICredentials', fields, defaults=(None,) * len(fields))
-ClientAPICredentials = namedtuple('APICredentials', fields)
+APICredentials = namedtuple('APICredentials', fields, defaults=(None,) * len(fields), )  # type:ignore
+ClientAPICredentials = namedtuple('APICredentials', fields)  # type:ignore
 
 
 class BaseAPIRouter:
     """
     Базовый роутер
     """
+
     def __init__(self, *args, **kwargs):
         pass
 
@@ -46,7 +47,7 @@ class ExternalAPIRouter(BaseAPIRouter):
         self._service = kwargs.get('service')
         self._version = kwargs.get('version')
 
-    def get_credentials(self) -> ClientAPICredentials:
+    def get_credentials(self) -> APICredentials:
         if not self._credentials:
 
             if not self._service:
