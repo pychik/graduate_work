@@ -86,7 +86,10 @@
 
 UGC_Api
 ===
-*  Первичный запуск из папки ugc
+*  Первичный запуск
   - chmod +x runner.sh (запустит docker compose и произведет настройку mongo)
-*  Вторичный запуск из папки ugc
+*  Вторичный запуск из папки
   - docker-compose up -d
+* Реализован ELK + Sentry для всего проекта
+* Произведен анализ хранилищ MongoDb vs Clickhouse (ugc/benchmark) Описание в ugc/benchmark/Readme
+* Реализован WorkFlow с отправкой статуса в телеграмм группу разработчиков
