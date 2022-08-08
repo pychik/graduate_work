@@ -7,6 +7,7 @@ from db import mongo
 from db.helpers import create_indexes
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+
 import sentry_sdk
 from sentry_sdk.integrations.starlette import StarletteIntegration
 from sentry_sdk.integrations.fastapi import FastApiIntegration

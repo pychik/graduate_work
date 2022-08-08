@@ -1,16 +1,15 @@
 import uuid
 from datetime import datetime
 from random import randint
-from typing import List, Dict, Any, Tuple
-
+from typing import Any
 from faker import Faker
 
 
-def data_generator() -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def data_generator() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     # Генерируем данные необходимые для тестов.
     fake = Faker()
-    movies: List = []
-    bookmarks: List = []
+    movies: list = []
+    bookmarks: list = []
     for _ in range(200000):
         movie = dict(
             movie_id=str(uuid.uuid4()),

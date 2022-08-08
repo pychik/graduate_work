@@ -1,19 +1,18 @@
 # type:ignore[assignment]
-from os import getenv
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 class UgcSet(BaseSettings):
-    KAFKA_TOPIC: str = getenv('KAFKA_TOPIC', 'events')
-    KAFKA_HOST: str = getenv('KAFKA_HOST', '127.0.0.1')
-    KAFKA_PORT: int = int(getenv('KAFKA_PORT', 9092))
+    KAFKA_TOPIC: str = ...
+    KAFKA_HOST: str = ...
+    KAFKA_PORT: int = ...
     GROUP_ID: str = "echo-messages"
     CONSUMER_TIMEOUT_MS: int = 100
     MAX_RECORDS_PER_CONSUMER: int = 100
 
-    MONGO_HOST: str = getenv('MONGO_HOST', '127.0.0.1')
-    MONGO_PORT: int = int(getenv('MONGO_PORT', 27017))
+    MONGO_HOST: str = Field('127.0.0.1', env='MONGO_HOST')
+    MONGO_PORT: int = Field(27017, env='MONGO_PORT')
 
     class UgcErrors:
         likes_not_found: str = "Rate not found"

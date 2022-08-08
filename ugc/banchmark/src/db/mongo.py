@@ -1,5 +1,3 @@
-from typing import List
-
 from pymongo import MongoClient
 
 from helper.utility import chunks
@@ -36,7 +34,7 @@ class MongoDBClient:
         for chunk in chunks(data):
             collection.insert_many(chunk)
 
-    def get_data(self, table: str, params=None, avg_params: list = None) -> List:
+    def get_data(self, table: str, params=None, avg_params: list = None) -> list:
         collection = self._get_collection(table)
 
         if avg_params:
