@@ -1,6 +1,6 @@
 from datetime import datetime
 from itertools import islice
-
+from typing import Any
 from tabulate import tabulate
 
 
@@ -55,6 +55,6 @@ def get_data(
     return
 
 
-def tprint(data: list[list[any]], headers: list[str]):
+def tprint(data: list[list[Any]], headers: list[str]):
     # Печатает результат в табличном виде.
     print(tabulate(tabular_data=data, headers=headers))
