@@ -113,8 +113,8 @@ class User(TimestampMixin, UserMixin, QuerysetMixin):
         full_name = ' '.join(filter(None, [self.first_name, self.last_name])).strip()
         return full_name or self.email
 
-    def get_jwt_token(self, expire_time: int = configuration.ACCESS_TOKEN_EXPIRE_TIME):
-        expire_time = timedelta(seconds=expire_time)
+    def get_jwt_token(self, time: int = configuration.ACCESS_TOKEN_EXPIRE_TIME):
+        expire_time = timedelta(seconds=time)
         access_token = create_access_token(identity=self.pk, expires_delta=expire_time)
         refresh_token = create_refresh_token(identity=self.pk, expires_delta=(expire_time * 24))
         return dict(access_token=access_token, refresh_token=refresh_token)

@@ -1,5 +1,6 @@
 import datetime
 from functools import lru_cache
+from typing import Optional
 
 from db.mongo import get_mongo
 from fastapi import Depends
@@ -16,7 +17,7 @@ class RatingService:
         self.rates_collection = self.database.get_collection("rates")
         self.reviews_collection = self.database.get_collection("reviews")
 
-    async def get_film_info(self, film_id: str) -> FilmInfo or None:
+    async def get_film_info(self, film_id: str) -> Optional[FilmInfo]:
         """Get film info with film_id [movie_id][likes][dislikes][rating]"""
 
         film = await self.rates_collection.find_one({"movie_id": film_id})
@@ -41,7 +42,7 @@ class RatingService:
             avg = 0.0
         return FilmInfo(movie_id=film_id, likes=like, dislikes=dislike, rating=avg)
 
-    async def update_film_rate(self, film_id: str, user_id: str, rating: int) -> FilmRate or None:
+    async def update_film_rate(self, film_id: str, user_id: str, rating: int) -> Optional[FilmRate]:
         """Update user rate  with film_id and user_id."""
         filtered = {"user_id": user_id, "movie_id": film_id}
         updated = {"user_id": user_id, "movie_id": film_id, "rating": rating}
@@ -53,21 +54,23 @@ class RatingService:
             return_document=ReturnDocument.AFTER,
             upsert=True,
         )
-        if replaced_rate:
-            return FilmRate.parse_obj(replaced_rate)
+        if not replaced_rate:
+            return None
+        return FilmRate.parse_obj(replaced_rate)
 
-    async def remove_film_rate(self, film_id: str, user_id: str) -> FilmRate or None:
+    async def remove_film_rate(self, film_id: str, user_id: str) -> Optional[FilmRate]:
         """Remove user rate with film_id and user id."""
         payload = {"user_id": user_id, "movie_id": film_id}
         removed_rate = await self.rates_collection.find_one_and_delete(
             payload, projection={"_id": False}
         )
-        if removed_rate:
-            return FilmRate.parse_obj(removed_rate)
+        if not removed_rate:
+            return None
+        return FilmRate.parse_obj(removed_rate)
 
     async def get_film_review_info(
         self, film_id: str, user_id: str
-    ) -> FilmReviewInfo or None:
+    ) -> Optional[FilmReviewInfo]:
         """Get film review [movie_id][user_id][text][timestamp][rating]"""
 
         filtered = {"user_id": user_id, "movie_id": film_id}
@@ -109,14 +112,15 @@ class RatingService:
 
     async def remove_film_review(
         self, film_id: str, user_id: str
-    ) -> FilmReview or None:
+    ) -> Optional[FilmReview]:
         """Remove film review with user_id and movie_id."""
         filtered = {"user_id": user_id, "movie_id": film_id}
         removed_review = await self.reviews_collection.find_one_and_delete(
             filtered, projection={"_id": False}
         )
-        if removed_review:
-            return FilmReview.parse_obj(removed_review)
+        if not removed_review:
+            return None
+        return FilmReview.parse_obj(removed_review)
 
 
 @lru_cache()

@@ -1,3 +1,4 @@
+# type:ignore[attr-defined]
 from .clickhouse import ClickHouseClient
 from .migrations import TABLES
 

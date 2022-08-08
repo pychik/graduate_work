@@ -2,7 +2,7 @@ from typing import List
 
 from pymongo import MongoClient
 
-from helpers.utility import chunks
+from helper.utility import chunks
 from settings import conf
 
 

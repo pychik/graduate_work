@@ -2,9 +2,9 @@ name: ugc_sprint_2
 
 on:
   push:
-    branches: [ master, akomissarov2020-cicd ]
+    branches: [ main, feature/*, github-actions* ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   linters:
@@ -25,16 +25,20 @@ jobs:
         pip install flake8==4.0.1
         pip install isort
         pip install mypy
+        pip install types-redis
+        pip install types-tabulate
+        pip install types-requests
         pip install flake8-html
     - name: Check imports with isort
       run: isort $(git ls-files '*.py')
     - name: Check with flake8
-      run: flake8 --format=html --htmldir=flake-report $(git ls-files '*.py')
+      run: flake8 --format=html --htmldir=flake-report .
     - name: Check with mypy
-      run: mypy --strict $(git ls-files '*.py')
+      run: mypy $(git ls-files '*.py')
   send_message:
     runs-on: ubuntu-latest
     needs: linters
+
     steps:
       - name: send message
         uses: appleboy/telegram-action@master
@@ -42,3 +46,4 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: ${{ github.workflow }} success!
+          debug: true
