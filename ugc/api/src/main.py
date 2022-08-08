@@ -15,6 +15,7 @@ app = FastAPI(title="UGC Service",
               description='Асинхронный сборщик UGC',
               docs_url='/api/openapi',
               openapi_url='/api/openapi.json',
+              root_path='/ugc',
               default_response_class=ORJSONResponse,)
 
 
