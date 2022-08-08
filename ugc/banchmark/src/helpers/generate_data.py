@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 from random import randint
-from typing import List, Dict, Any, Tuple
 
 from faker import Faker
 

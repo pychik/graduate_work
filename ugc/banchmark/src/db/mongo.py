@@ -1,5 +1,3 @@
-from typing import List
-
 from pymongo import MongoClient
 
 from helper.utility import chunks

@@ -1,6 +1,5 @@
 from datetime import datetime
 from itertools import islice
-from typing import Any, List
 
 from tabulate import tabulate
 
