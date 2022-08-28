@@ -1,15 +1,19 @@
 from pydantic import BaseModel
 
 
+class Template(BaseModel):
+    body: str
+
+
 class UserData(BaseModel):
     id: int
     notify: bool
-    template: str
+    name: str
+    message: str
     email: str
-    subject: str
+
 
 class DataModel(BaseModel):
-    template: str
+    template: Template
+    subject: str
     user_list: list[UserData]
-
-
