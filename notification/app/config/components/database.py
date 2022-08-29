@@ -1,3 +1,6 @@
+import os
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -8,7 +11,7 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', 5432),
         'OPTIONS': {
             # схемы
-           'options': '-c search_path=public'
+            'options': '-c search_path=public'
         }
     }
 }

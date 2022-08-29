@@ -1,7 +1,9 @@
 import os
-from split_settings.tools import include
 from pathlib import Path
+
 from dotenv import load_dotenv
+from split_settings.tools import include
+
 
 load_dotenv()
 
@@ -100,6 +102,14 @@ CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL', 'localhost')
 # RESULT_BACKEND нужно настроить
 CELERY_RESULT_BACKEND = 'django-db'
+
+CELERY_ONCE = {
+    'backend': 'celery_once.backends.File',
+    'settings': {
+        'location': '/tmp/celery_once',  # noqa
+        'default_timeout': 60 * 60
+    }
+}
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 

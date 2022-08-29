@@ -6,3 +6,4 @@ django-split-settings==1.1.0
 celery==5.2.7
 django-celery-beat==2.3.0
 django-celery-results==2.2.0
+celery_once==3.0.1
