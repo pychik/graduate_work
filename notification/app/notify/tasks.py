@@ -6,6 +6,7 @@ from notify.models import NotificationLog
 from notify.utils import get_handler, unlock_log_finally
 
 
+
 @app.task(bind=True, queue=TaskQueue.QUEUE_DEFAULT)
 def task_test(self):
     print(f'================{self.__name__}===========')
