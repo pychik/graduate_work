@@ -113,6 +113,14 @@ CELERY_RESULT_SERIALIZER = 'json'
 # RESULT_BACKEND нужно настроить
 CELERY_RESULT_BACKEND = 'django-db'
 
+CELERY_ONCE = {
+    'backend': 'celery_once.backends.File',
+    'settings': {
+        'location': '/tmp/celery_once',  # noqa
+        'default_timeout': 60 * 60
+    }
+}
+
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # Internationalization
