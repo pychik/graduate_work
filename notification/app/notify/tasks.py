@@ -1,5 +1,4 @@
-from config.celery import app
-from config.celery import TaskQueue
+from config.celery import TaskQueue, app
 
 
 @app.task(bind=True, queue=TaskQueue.QUEUE_DEFAULT)
