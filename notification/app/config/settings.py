@@ -132,3 +132,10 @@ STATIC_URL = '/static/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email configs
+FROM_EMAIL = os.environ.get("FROM_EMAIL")
+SENDGRID_API = os.environ.get("SENDGRID_API")
+
+# Email batch size
+BATCH_SIZE = 25
