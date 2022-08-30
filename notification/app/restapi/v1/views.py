@@ -26,7 +26,7 @@ class WelcomeView(APIView):
     serializer_class = ReceiverBaseSerializer
 
     @swagger_auto_schema(
-        operation_description='Приветсвующее письмо.',
+        operation_description='Приветственное письмо.',
         request_body=ReceiverBaseSerializer
     )
     def post(self, request):

@@ -1,4 +1,0 @@
-from .views import VIEWS_STREAM
-
-
-MIGRATIONS = (VIEWS_STREAM,)
