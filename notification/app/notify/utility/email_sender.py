@@ -24,9 +24,14 @@ class SendgridSender:
             subject=self.data.subject,
             html_content=self.data.template,
             is_multiple=True)
+        print(batch_address)
+        logging.error(batch_address)
+
         try:
             sg = SendGridAPIClient(settings.SENDGRID_API)
             response = sg.send(message)
+            print(response)
+            logging.error(response)
 
         except HTTPError as e:
             logging.exception('Error sending email')
