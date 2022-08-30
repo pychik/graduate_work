@@ -1,10 +1,8 @@
 import functools
-from notify.handlers.base import HANDLERS_MAP
+import os
+
 from notify.models import NotificationLog
-
-
-def get_handler(nl: NotificationLog):
-    return HANDLERS_MAP.get(nl.type)(nl)
+from django.template.loader import get_template
 
 
 def close_connection_if_not_usable(connection):
@@ -42,3 +40,10 @@ def unlock_log_finally(func):
             if was_exception_raised:
                 unlock_log(guid)
     return wrapper
+
+
+def get_rendered_template(template_name, data):
+    path = f'{os.getcwd()}/notify/templates/{template_name}'
+    template = get_template(path)
+
+    return template.render(data)
