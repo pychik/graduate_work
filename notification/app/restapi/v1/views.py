@@ -2,6 +2,9 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from notify.models import NotificationTypes
+from restapi.utils import create_notification_log
 from restapi.v1.serializers.base import ReceiverBaseSerializer
 from restapi.v1.serializers.bookmarks_serializer import BookmarksSerializer
 from restapi.v1.serializers.like_serializer import LikesSerializer
@@ -24,6 +27,7 @@ class LikesView(APIView):
 
 class WelcomeView(APIView):
     serializer_class = ReceiverBaseSerializer
+    log_type = NotificationTypes.welcome
 
     @swagger_auto_schema(
         operation_description='Приветственное письмо.',
@@ -32,7 +36,16 @@ class WelcomeView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data = serializer.data
+
+            try:
+                create_notification_log(self.log_type, data)
+            except Exception as e:
+                # т.к. дергать эту ручку будет наш же сервис, мы можем выкидывать ошибку наружу.
+                error = {'error': str(e)}
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            response = {'success': True}
+            return Response(response, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

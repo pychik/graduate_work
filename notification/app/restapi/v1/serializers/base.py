@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 
 class ReceiverBaseSerializer(serializers.Serializer):
-    """Базовый сериалайзер покупателей"""
+    """Базовый сериалайзер посетителей"""
     email = serializers.EmailField(max_length=255)
-    first_name = serializers.CharField(max_length=30, required=False, allow_null=True)
+    first_name = serializers.CharField(max_length=30, required=True)
     last_name = serializers.CharField(max_length=150, required=False, allow_null=True)
 
 

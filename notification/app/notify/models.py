@@ -5,9 +5,8 @@ from django.db import models
 from django.db.models import JSONField
 
 
-class Stages(models.TextChoices):
+class NotificationStages(models.TextChoices):
     new = ('new', 'new')
-    # done = ('done', 'done')
     failed = ('failed', 'failed')
     success = ('success', 'success')
 
@@ -15,11 +14,12 @@ class Stages(models.TextChoices):
 class NotificationTypes(models.TextChoices):
     like = ('like', 'like')
     mass_mail = ('mass_mail', 'mass_mail')
+    welcome = ('welcome', 'welcome')
 
 
 class NotificationLogNewManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(stage=Stages.new).exclude(locked=True)
+        return super().get_queryset().filter(stage=NotificationStages.new).exclude(locked=True)
 
 
 class NotificationLog(models.Model):
@@ -27,39 +27,28 @@ class NotificationLog(models.Model):
     Класс логов уведомления
     """
 
-    # STAGE_NEW = 'new'
-    # STAGE_IN_WORK = 'in_work'
-    # STAGE_DONE = 'done'
-    #
-    # STASUSES = (
-    #     (STAGE_NEW, 'Новый'),
-    #     (STAGE_IN_WORK, 'В работе'),
-    #     (STAGE_DONE, 'Отправка завершена')
-    # )
-
-    # template_id = models.ForeignKey('template', on_delete=models.SET_NULL, related_name='notifications' )
     notification_data = JSONField(encoder=DjangoJSONEncoder, blank=True, default=dict)
     guid = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # status =
     locked = models.BooleanField(default=False, null=True, blank=True)
-    stage = models.CharField('type',
+    stage = models.CharField('Stage',
                              max_length=20,
-                             choices=Stages.choices,
-                             default=Stages.new, blank=True)
+                             choices=NotificationStages.choices,
+                             default=NotificationStages.new, blank=True)
     stages_data = JSONField(encoder=DjangoJSONEncoder, blank=True, default=dict)
-    type = models.CharField('type',
+    notification_type = models.CharField('notification_type',
                             max_length=20,
                             choices=NotificationTypes.choices,
                             default='', blank=True)
+    send_tries = models.IntegerField(default=0)
 
     # managers
     objects = models.Manager()
     new = NotificationLogNewManager()
 
     def __str__(self):
-        return f'{self.guid}: {self.type}'
+        return f'{self.guid}: {self.notification_type}'
 
     @classmethod
     def get_object(cls, guid):
@@ -71,3 +60,22 @@ class NotificationLog(models.Model):
     def unlock(self):
         self.locked = False
         self.save(update_fields=['locked'])
+
+    @classmethod
+    def create_by_type(cls, nl_type, data):
+        values = dict(notification_type=nl_type, notification_data=data)
+        return cls.objects.create(**values)
+
+    def change_stage(self, new_stage, save=True):
+        self.stage= new_stage
+        if save:
+            self.save(update_fields=['stage'])
+
+    def log_error(self, error):
+        # TODO: Дописать метод
+        self.stages_data['error'] = str(error)
+        self.save()
+
+    def log_success(self, message):
+        # TODO: Дописать метод
+        pass

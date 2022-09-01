@@ -22,30 +22,24 @@ class SendgridSender:
             from_email=settings.FROM_EMAIL,
             to_emails=batch_address,
             subject=self.data.subject,
-            html_data=self.data.template.body,
+            html_content=self.data.template,
             is_multiple=True)
         try:
             sg = SendGridAPIClient(settings.SENDGRID_API)
             response = sg.send(message)
 
-        except HTTPError:
-            logging.exception('Error send email')
+        except HTTPError as e:
+            logging.exception('Error sending email')
+            raise e
         else:
             if response.status_code != 202:
                 logging.error(f'Error send email, {response}')
 
-    def subs_maker(self, data_model):
-        _ddm = {}
-        for k, v in dict(data_model).items():
-            k = '{{' + k + '}}'
-            _ddm[k] = v
-        return _ddm
 
     def _batcher(self):
         to_emails = (To(email=u.email,  # update with your email
-                        name=f'{u.first_name}',
-                        substitutions=self.subs_maker(u)
-                        ) if u.notify == True else None for u in self.data.user_list )
+                        name=f'{u.first_name}'
+                        ) for u in self.data.user_list )
 # {
 #     '{{name}}': 'Joe',
 #     '{{link}}': 'https://github.com/',
@@ -63,3 +57,7 @@ class SendgridSender:
             b = list(batch)
             self._send(batch_address=b)
             logging.info(f'Handled {len(b)} notifications')
+
+
+def get_mail_client(data):
+    return SendgridSender(data)
