@@ -1,9 +1,8 @@
 from drf_yasg.utils import swagger_auto_schema
+from notify.models import NotificationTypes
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from notify.models import NotificationTypes
 from restapi.utils import create_notification_log
 from restapi.v1.serializers.base import ReceiverBaseSerializer
 from restapi.v1.serializers.bookmarks_serializer import BookmarksSerializer

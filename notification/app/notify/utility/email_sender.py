@@ -1,12 +1,11 @@
 import logging
-
 from itertools import chain, islice
-from python_http_client.exceptions import HTTPError
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, To
 
 from config import settings
 from notify import DataModel
+from python_http_client.exceptions import HTTPError
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, To
 
 
 class SendgridSender:
@@ -24,7 +23,6 @@ class SendgridSender:
             subject=self.data.subject,
             html_content=self.data.template,
             is_multiple=True)
-        print(batch_address)
         logging.error(batch_address)
 
         try:
@@ -40,21 +38,22 @@ class SendgridSender:
             if response.status_code != 202:
                 logging.error(f'Error send email, {response}')
 
-
     def _batcher(self):
         to_emails = (To(email=u.email,  # update with your email
                         name=f'{u.first_name}'
-                        ) for u in self.data.user_list )
-# {
-#     '{{name}}': 'Joe',
-#     '{{link}}': 'https://github.com/',
-#     '{{event}}': 'Developers Anonymous'
-# }
+                        ) for u in self.data.user_list)
+
+        # {
+        #     '{{name}}': 'Joe',
+        #     '{{link}}': 'https://github.com/',
+        #     '{{event}}': 'Developers Anonymous'
+        # }
 
         def chunks(iterable, size=1):
             iterator = iter(iterable)
             for first in iterator:
                 yield chain([first], islice(iterator, size - 1))
+
         return chunks(to_emails, settings.BATCH_SIZE)
 
     def execute(self):

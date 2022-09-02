@@ -1,8 +1,8 @@
 import functools
 import os
 
-from notify.models import NotificationLog
 from django.template.loader import get_template
+from notify.models import NotificationLog
 
 
 def close_connection_if_not_usable(connection):
@@ -39,6 +39,7 @@ def unlock_log_finally(func):
         finally:
             if was_exception_raised:
                 unlock_log(guid)
+
     return wrapper
 
 

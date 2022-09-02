@@ -38,9 +38,9 @@ class NotificationLog(models.Model):
                              default=NotificationStages.new, blank=True)
     stages_data = JSONField(encoder=DjangoJSONEncoder, blank=True, default=dict)
     notification_type = models.CharField('notification_type',
-                            max_length=20,
-                            choices=NotificationTypes.choices,
-                            default='', blank=True)
+                                         max_length=20,
+                                         choices=NotificationTypes.choices,
+                                         default='', blank=True)
     send_tries = models.IntegerField(default=0)
 
     # managers
@@ -67,7 +67,7 @@ class NotificationLog(models.Model):
         return cls.objects.create(**values)
 
     def change_stage(self, new_stage, save=True):
-        self.stage= new_stage
+        self.stage = new_stage
         if save:
             self.save(update_fields=['stage'])
 

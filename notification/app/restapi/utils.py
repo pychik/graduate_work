@@ -1,5 +1,4 @@
 from notify.models import NotificationLog
-from notify.models import NotificationTypes
 
 
 def create_notification_log(nl_type, data):

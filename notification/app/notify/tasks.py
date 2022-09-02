@@ -2,9 +2,9 @@ import logging
 
 from celery_once import QueueOnce
 from config.celery import TaskQueue, app
+from notify.handlers.router import get_handler
 from notify.models import NotificationLog
 from notify.utils import unlock_log_finally
-from notify.handlers.router import get_handler
 
 
 @app.task(bind=True, queue=TaskQueue.QUEUE_DEFAULT)

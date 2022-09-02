@@ -1,8 +1,10 @@
-from .base import BaseHandler
+from notify.dataclasses import DataModel, UserData
 from notify.models import NotificationStages
 from notify.utility.email_sender import get_mail_client
-from notify.dataclasses import DataModel, UserData
 from notify.utils import get_rendered_template
+from short_links.utils import create_activation_link
+
+from .base import BaseHandler
 
 
 class WelcomeHandler(BaseHandler):
@@ -11,7 +13,6 @@ class WelcomeHandler(BaseHandler):
 
     def __init__(self, nl):
         super().__init__(nl)
-
 
     def send(self):
 
@@ -34,8 +35,9 @@ class WelcomeHandler(BaseHandler):
         data = self.nl.notification_data
 
         user_list = [UserData(**data)]
-
-        values = dict(username=data.get('first_name'))
+        user_id = data.get('user_id')
+        activation_link = create_activation_link(user_id)
+        values = dict(username=data.get('first_name'), activation_link=activation_link)
         template = get_rendered_template(self.template_name, values).encode('utf-8')
         subject = self.subject
 

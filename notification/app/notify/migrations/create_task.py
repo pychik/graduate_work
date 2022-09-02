@@ -6,17 +6,17 @@ from django.db import migrations
 def create_task(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     IntervalSchedule = apps.get_model('django_celery_beat', 'intervalschedule')
-    interval_5_seconds, _ = IntervalSchedule.objects.using(db_alias).get_or_create(**{
-        'every': 5,
-        'period': 'seconds'
+    interval_1_min, _ = IntervalSchedule.objects.using(db_alias).get_or_create(**{
+        'every': 1,
+        'period': 'minutes'
     })
 
     PeriodicTask = apps.get_model('django_celery_beat', 'periodictask')
     PeriodicTask.objects.using(db_alias).update_or_create(
-        task='notify.tasks.task_test',
+        task='notify.tasks.task_discover_new',
         defaults=dict(
-            name='Test task every 5 seconds',
-            interval_id=interval_5_seconds.id,
+            name='Discover new notifications every 1 minute',
+            interval_id=interval_1_min.id,
             args='[]',
             enabled=True
         )
