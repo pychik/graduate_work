@@ -10,21 +10,38 @@ from restapi.v1.serializers.like_serializer import LikesSerializer
 from restapi.v1.serializers.movie_serializer import MovieSerializer
 
 
-class LikesView(APIView):
+class NotificationPostMixin:
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+
+            try:
+                guid = create_notification_log(self.log_type, data).guid
+            except Exception as e:
+                # т.к. дергать эту ручку будет наш же сервис, мы можем выкидывать ошибку наружу.
+                error = {'error': str(e)}
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            response = {'success': True,
+                        'notification_guid': guid}
+            return Response(response, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LikesView(NotificationPostMixin, APIView):
     serializer_class = LikesSerializer
+    log_type = NotificationTypes.like
 
     @swagger_auto_schema(
         operation_description='Лайки.',
         request_body=LikesSerializer
     )
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().post(request)
 
 
-class WelcomeView(APIView):
+class WelcomeView(NotificationPostMixin, APIView):
     serializer_class = ReceiverBaseSerializer
     log_type = NotificationTypes.welcome
 
@@ -33,19 +50,7 @@ class WelcomeView(APIView):
         request_body=ReceiverBaseSerializer
     )
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            data = serializer.data
-
-            try:
-                create_notification_log(self.log_type, data)
-            except Exception as e:
-                # т.к. дергать эту ручку будет наш же сервис, мы можем выкидывать ошибку наружу.
-                error = {'error': str(e)}
-                return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            response = {'success': True}
-            return Response(response, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().post(request)
 
 
 class BookmarksView(APIView):

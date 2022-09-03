@@ -76,6 +76,8 @@ class NotificationLog(models.Model):
         self.stages_data['error'] = str(error)
         self.save()
 
-    def log_success(self, message):
+    def log_success(self, message, save=True):
         # TODO: Дописать метод
-        pass
+        self.stages_data['success'] = message
+        if save:
+            self.save()

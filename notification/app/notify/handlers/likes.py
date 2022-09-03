@@ -1,22 +1,24 @@
 from notify.dataclasses import DataModel, UserData
+from notify.handlers.base import BaseHandler
 from notify.utils import get_rendered_template
-from short_links.utils import create_activation_link
-
-from .base import BaseHandler
 
 
-class WelcomeHandler(BaseHandler):
-    template_name = 'welcome_letter.html'
-    subject = 'Welcome letter'
+class LikesHandler(BaseHandler):
+    template_name = 'like.html'
+    subject = 'Your comment is popular!'
 
     def prepare_data(self):
         data = self.nl.notification_data
 
+        comment_link = data.pop('link')
+        likes_count = data.pop('count')
+
         user_list = [UserData(**data)]
-        user_id = data.get('user_id')
-        activation_link = create_activation_link(user_id)
-        values = dict(username=data.get('first_name'), activation_link=activation_link)
-        template = get_rendered_template(self.template_name, values).encode('utf-8')
+
+        first_name = data.get('first_name')
+
+        values_to_render = dict(first_name=first_name, comment_link=comment_link, likes_count=likes_count)
+        template = get_rendered_template(self.template_name, values_to_render)
         subject = self.subject
 
         data_to_send = dict(user_list=user_list,
