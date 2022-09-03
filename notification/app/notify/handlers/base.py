@@ -1,4 +1,4 @@
-from notify.models import NotificationLog, NotificationTypes, NotificationStages
+from notify.models import NotificationLog, NotificationStages
 
 
 MAX_SEND_RETRIES = 5

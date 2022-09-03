@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
     'notify.apps.NotifyConfig',
     'restapi.apps.RestapiConfig',
+    'short_links.apps.ShortLinksConfig',
 
 ]
 
@@ -147,3 +148,8 @@ SENDGRID_API = os.environ.get("SENDGRID_API")
 
 # Email batch size
 BATCH_SIZE = 25
+
+# Short links size
+SHORT_LINK_SIZE = 7
+
+REDIRECT_AFTER_ACTIVATION = 'https://movies_service_main_page'

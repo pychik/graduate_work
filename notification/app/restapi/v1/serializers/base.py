@@ -6,6 +6,7 @@ class ReceiverBaseSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
     first_name = serializers.CharField(max_length=30, required=True)
     last_name = serializers.CharField(max_length=150, required=False, allow_null=True)
+    user_id = serializers.CharField(max_length=36, required=True)  # 36 for uuid
 
 
 class MovieBaseSerializer(serializers.Serializer):

@@ -1,6 +1,6 @@
-from notify.handlers.welcome import WelcomeHandler
-from notify.models import NotificationTypes, NotificationLog
 from notify.handlers.base import BaseHandler
+from notify.handlers.welcome import WelcomeHandler
+from notify.models import NotificationLog, NotificationTypes
 
 
 HANDLERS_MAP = {

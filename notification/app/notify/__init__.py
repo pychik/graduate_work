@@ -1,1 +1,1 @@
-from .dataclasses import DataModel
+from .dataclasses import DataModel  # noqa
