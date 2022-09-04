@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from restapi.v1.serializers.base import MovieBaseSerializer, ReceiverListSerializer
+from restapi.v1.serializers.base import MovieBaseSerializer, ReceiverBaseSerializer
 
 
-class BookmarksSerializer(ReceiverListSerializer):
-    url = serializers.URLField()
-    count = serializers.IntegerField(min_value=1)
+class BookmarksSerializer(serializers.Serializer):
+    receiver = ReceiverBaseSerializer()
     movies = MovieBaseSerializer(many=True)
 
     def validate(self, attrs):
