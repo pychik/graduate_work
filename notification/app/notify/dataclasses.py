@@ -7,6 +7,7 @@ class UserData(BaseModel):
     first_name: str
     last_name: Optional[str]
     email: str
+    user_id: Optional[str]
 
 
 class DataModel(BaseModel):

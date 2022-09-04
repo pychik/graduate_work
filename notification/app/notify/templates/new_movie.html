@@ -14,12 +14,11 @@
             </div>
         </div>
         <div class="col-12">
-            <h1>Привет {{username}} от сервиса уведомлений <b>Yandex films</b></h1>
-            <h2>Вам уведомление о новом фильме в нашем кинотеатре..</h2>
+            <h1>Привет {{first_name}} от сервиса уведомлений <b>Yandex films</b></h1>
+            <h2>Вам уведомление о новом фильме в нашем кинотеатре:</h2>
         </div>
-        <div class="alert alert-dark" role="alert">
-            <h3>{{message}}</h3>
-        </div>
+        <h2><a href="{{movie_link}}">{{movie_name}}</a></h2>
+        <h3>{{movie_description}}</h3>
     </div>
 </div>
 </body>

@@ -15,6 +15,7 @@ class NotificationTypes(models.TextChoices):
     like = ('like', 'like')
     mass_mail = ('mass_mail', 'mass_mail')
     welcome = ('welcome', 'welcome')
+    new_movie = ('new_movie', 'new_movie')
 
 
 class NotificationLogNewManager(models.Manager):
@@ -72,12 +73,14 @@ class NotificationLog(models.Model):
             self.save(update_fields=['stage'])
 
     def log_error(self, error):
-        # TODO: Дописать метод
-        self.stages_data['error'] = str(error)
+        if not self.stages_data.get('error'):
+            self.stages_data['error'] = []
+            self.stages_data['error'].append(str(error))
         self.save()
 
     def log_success(self, message, save=True):
-        # TODO: Дописать метод
-        self.stages_data['success'] = message
+        if not self.stages_data.get('success'):
+            self.stages_data['success'] = []
+            self.stages_data['success'].append(str(message))
         if save:
             self.save()

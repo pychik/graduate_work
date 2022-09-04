@@ -11,9 +11,10 @@ class ReceiverBaseSerializer(serializers.Serializer):
 
 class MovieBaseSerializer(serializers.Serializer):
     """Базовый сериалайзер произведений"""
-    title = serializers.CharField(max_length=255)
-    imdb_rating = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
-    url = serializers.URLField()
+    movie_name = serializers.CharField(max_length=255)
+    imdb_rating = serializers.DecimalField(max_digits=2, decimal_places=1, min_value=0)
+    movie_link = serializers.URLField()
+    movie_description = serializers.CharField()
 
 
 class ReceiverListSerializer(serializers.Serializer):
