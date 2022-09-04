@@ -17,6 +17,7 @@ class NotificationTypes(models.TextChoices):
     welcome = ('welcome', 'welcome')
     new_movie = ('new_movie', 'new_movie')
     delayed = ('delayed', 'delayed')
+    birthday = ('birthday', 'birthday')
 
 
 class NotificationLogNewManager(models.Manager):
