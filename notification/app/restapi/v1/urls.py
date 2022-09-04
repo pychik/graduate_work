@@ -7,4 +7,5 @@ urlpatterns = [
     path('welcome/', views.WelcomeView.as_view(), name='notify_welcome'),
     path('new_movie/', views.NewMovieView.as_view(), name='notify_new_movie'),
     path('bookmarks/', views.BookmarksView.as_view(), name='notify_bookmarks'),
+    path('birthday/', views.BirthdayView.as_view(), name='notify_birthday'),
 ]

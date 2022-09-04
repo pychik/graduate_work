@@ -33,6 +33,7 @@ class BaseHandler:
                 mail_client.execute()
             except Exception as e:
                 self.nl.log_error(e)
+                self.nl.change_stage(NotificationStages.failed)
             else:
                 message = f'Success at {timezone.now()}'
                 self.nl.log_success(message)
@@ -43,3 +44,6 @@ class BaseHandler:
 
     def prepare_data(self):
         raise Exception('Not implemented')
+
+    def fail(self):
+        self.nl.change_stage(NotificationStages.failed)

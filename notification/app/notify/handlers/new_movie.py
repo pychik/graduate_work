@@ -33,6 +33,6 @@ class NewMovieHandler(BaseHandler):
                 prepared_data.append(DataModel(**data_to_send))
             except Exception as e:
                 self.nl.log_error(e)
-                raise e
+                self.fail()
 
             return prepared_data

@@ -1,6 +1,7 @@
-from .base import BaseHandler
 from notify.dataclasses import DataModel, UserData
 from notify.utils import get_rendered_template
+
+from .base import BaseHandler
 
 
 class BirthdayHandler(BaseHandler):
@@ -31,6 +32,6 @@ class BirthdayHandler(BaseHandler):
                 prepared_data.append(DataModel(**data_to_send))
             except Exception as e:
                 self.nl.log_error(e)
-                raise e
+                self.fail()
 
             return prepared_data
