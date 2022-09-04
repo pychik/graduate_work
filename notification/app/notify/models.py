@@ -161,6 +161,7 @@ class Assignment(models.Model):
     class Meta:
         verbose_name = 'Поручение'
         verbose_name_plural = 'Поручения'
+        ordering = ['-created_at']
 
     def clean(self) -> None:
         if self.from_age > self.to_age:
@@ -175,3 +176,6 @@ class Assignment(models.Model):
             return cls.objects.get(guid=guid)
         except cls.DoesNotExist:
             return None
+
+    def __str__(self) -> str:
+        return f'{self.guid} - {self.subject}'
