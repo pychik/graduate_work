@@ -3,7 +3,8 @@ import logging
 from celery_once import QueueOnce
 from config.celery import TaskQueue, app
 from notify.handlers.router import get_handler
-from notify.models import NotificationLog
+from notify.helpers import send_assignment
+from notify.models import Assignment, NotificationLog
 from notify.utils import unlock_log_finally
 
 
@@ -36,3 +37,8 @@ def task_discover_new(batch_size=50):
     for guid in new_guids:
         task_process_log.apply_async((guid,))
     return len(new_guids)
+
+
+@app.task(queue=TaskQueue.QUEUE_DEFAULT)
+def task_send_assignment(guid: Assignment):
+    send_assignment(guid=guid)

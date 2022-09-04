@@ -1,3 +1,4 @@
+from notify.handlers.assignment import NewAssignmentHandler
 from notify.handlers.base import BaseHandler
 from notify.handlers.likes import LikesHandler
 from notify.handlers.new_movie import NewMovieHandler
@@ -9,6 +10,7 @@ HANDLERS_MAP = {
     NotificationTypes.welcome: WelcomeHandler,
     NotificationTypes.like: LikesHandler,
     NotificationTypes.new_movie: NewMovieHandler,
+    NotificationTypes.assignment: NewAssignmentHandler
 }
 
 
