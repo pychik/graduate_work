@@ -19,6 +19,8 @@ class NotificationTypes(models.TextChoices):
     welcome = ('welcome', 'welcome')
     new_movie = ('new_movie', 'new_movie')
     assignment = ('assignment', 'assignment')
+    delayed = ('delayed', 'delayed')
+    birthday = ('birthday', 'birthday')
 
 
 class SexOptions(models.TextChoices):

@@ -53,6 +53,18 @@ class WelcomeView(NotificationPostMixin, APIView):
         return super().post(request)
 
 
+class BirthdayView(NotificationPostMixin, APIView):
+    serializer_class = ReceiverBaseSerializer
+    log_type = NotificationTypes.birthday
+
+    @swagger_auto_schema(
+        operation_description='Письмо поздравление.',
+        request_body=ReceiverBaseSerializer
+    )
+    def post(self, request):
+        return super().post(request)
+
+
 class BookmarksView(APIView):
     serializer_class = BookmarksSerializer
 
