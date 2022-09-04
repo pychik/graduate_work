@@ -16,6 +16,7 @@ class NotificationTypes(models.TextChoices):
     mass_mail = ('mass_mail', 'mass_mail')
     welcome = ('welcome', 'welcome')
     new_movie = ('new_movie', 'new_movie')
+    birthday = ('birthday', 'birthday')
 
 
 class NotificationLogNewManager(models.Manager):
