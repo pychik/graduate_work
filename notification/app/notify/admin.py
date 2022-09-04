@@ -1,3 +1,4 @@
+from typing import Dict
 from django.contrib import admin, messages
 from django.shortcuts import redirect
 from django.urls import path, reverse
@@ -32,7 +33,7 @@ class AssignmentAdmin(admin.ModelAdmin):
             'onclick': '"alert(\'Сообщение уже отправлено.\'); return false;"'
         }
         default_disable_str = ' '.join(f'{k}={v}' for k, v in default_disable_dict.items())
-        send_notify_str = {}
+        send_notify_str: Dict[str, str] = {}
 
         url_send_notify = reverse("admin:send_notify", args=[obj.guid])
 
