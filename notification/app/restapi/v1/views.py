@@ -58,7 +58,7 @@ class BirthdayView(NotificationPostMixin, APIView):
     log_type = NotificationTypes.birthday
 
     @swagger_auto_schema(
-        operation_description='Письмо поздравление.',
+        operation_description='Письмо поздравление',
         request_body=ReceiverBaseSerializer
     )
     def post(self, request):

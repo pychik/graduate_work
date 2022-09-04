@@ -8,7 +8,7 @@
     </a>
 </p>
 
-Ссылка на репозиторий - [ugc_sprint_2](https://github.com/warrinot/notifications_sprint_1)
+Ссылка на репозиторий - https://github.com/warrinot/notifications_sprint_1
 
 Требования
 ===
@@ -22,9 +22,10 @@
 ### Docker installation
 1. Установить [docker](https://docs.docker.com/engine/installation/)
 2. Настройка параметров в файле `.env`
-3. Выполнить команду `docker-compose up` или `make build`
+3. Выполнить команду `docker-compose up`
 4. Адрес документации API:
    * Swagger - `http://localhost:8000/swagger/`
+   * Коллекция для postman: [Link](/notification/swagger_collection.json)
 
 ### Built With
 
@@ -41,15 +42,12 @@
 Notifications_Service
 ===
 
-* Реализовано
-  * 
-  * ELK + Sentry для всего проекта
-  * Произведен анализ хранилищ MongoDb vs Clickhouse (ugc/benchmark) Описание в ugc/benchmark/Readme
-  * WorkFlow с отправкой статуса в телеграмм группу разработчиков
- 
-
-Запуск Notifications 
-  * Первичный запуск
-     * chmod +x runner.sh (запустит docker compose и произведет настройку mongo)
-  *  Вторичный запуск из папки
-     * docker-compose up -d
+* Реализовано на Django + Celery + Rabbitmq(как брокер для Celery)
+* Сервис уведомлений по сути получает необходимые данные 
+от других сервисов и реализизует подготовку шаблонов
+и отправку данных пользователям
+* При получении данных через API создается notification_log с необходимыми данными и типом
+* Задача в celery(task_discover_new) подхватывает новые notification_log'и 
+и отправляет их в обработку в задачу task_process_log
+* В этой задаче выбирается обработчик по типу уведомления, подготавливаются данные и отправляются через SendGridClient
+* Так же реализована отправка из админки

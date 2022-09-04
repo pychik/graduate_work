@@ -1,4 +1,5 @@
 from typing import Any, Dict
+
 from django.contrib import admin, messages
 from django.shortcuts import redirect
 from django.urls import path, reverse
@@ -39,12 +40,12 @@ class AssignmentAdmin(admin.ModelAdmin):
 
         if obj.sent:
             send_notify_str = default_disable_str
-            return mark_safe(
+            return mark_safe(  # noqa
                 f'<p><a class="button" {send_notify_str} href="{url_send_notify}">'
                 f'Сообщение отправлено.</a></p>'
             )
 
-        return mark_safe(
+        return mark_safe(  # noqa
             f'<p><a class="button" {send_notify_str} href="{url_send_notify}">'
             f'Отправить сообщение.</a></p>'
         )
