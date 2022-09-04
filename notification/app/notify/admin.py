@@ -32,19 +32,19 @@ class AssignmentAdmin(admin.ModelAdmin):
             'onclick': '"alert(\'Сообщение уже отправлено.\'); return false;"'
         }
         default_disable_str = ' '.join(f'{k}={v}' for k, v in default_disable_dict.items())
-        send_notify = {}
+        send_notify_str = {}
 
         url_send_notify = reverse("admin:send_notify", args=[obj.guid])
 
         if obj.sent:
-            send_notify = default_disable_str
+            send_notify_str = default_disable_str
             return mark_safe(
-                f'<p><a class="button" {send_notify} href="{url_send_notify}">'
+                f'<p><a class="button" {send_notify_str} href="{url_send_notify}">'
                 f'Сообщение отправлено.</a></p>'
             )
 
         return mark_safe(
-            f'<p><a class="button" {send_notify} href="{url_send_notify}">'
+            f'<p><a class="button" {send_notify_str} href="{url_send_notify}">'
             f'Отправить сообщение.</a></p>'
         )
 
