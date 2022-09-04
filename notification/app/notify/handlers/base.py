@@ -1,3 +1,4 @@
+from django.utils import timezone
 from notify.models import NotificationLog, NotificationStages
 from notify.utility.email_sender import get_mail_client
 
@@ -24,18 +25,19 @@ class BaseHandler:
     def send(self):
         data_to_send = self.prepare_data()
 
-        mail_client = get_mail_client(data_to_send)
+        for data in data_to_send:
 
-        try:
-            mail_client.execute()
-        except Exception as e:
-            self.nl.log_error(e)
-        else:
-            message = 'Success'
-            self.nl.log_success(message)
-            self.nl.change_stage(NotificationStages.success, save=False)
+            mail_client = get_mail_client(data)
 
-        finally:
+            try:
+                mail_client.execute()
+            except Exception as e:
+                self.nl.log_error(e)
+            else:
+                message = f'Success at {timezone.now()}'
+                self.nl.log_success(message)
+                self.nl.change_stage(NotificationStages.success, save=False)
+
             self.nl.send_tries += 1
             self.nl.save()
 

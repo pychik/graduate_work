@@ -1,9 +1,10 @@
 import asyncio
-import websockets
+import logging
 
+import websockets
 from config import Settings
 
-import logging
+
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
 logger.addHandler(logging.StreamHandler())

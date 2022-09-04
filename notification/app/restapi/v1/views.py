@@ -57,7 +57,7 @@ class BookmarksView(APIView):
     serializer_class = BookmarksSerializer
 
     @swagger_auto_schema(
-        operation_description="Закладки.",
+        operation_description="Закладки",
         request_body=BookmarksSerializer
     )
     def post(self, request):
@@ -67,15 +67,13 @@ class BookmarksView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MovieView(APIView):
+class NewMovieView(NotificationPostMixin, APIView):
     serializer_class = MovieSerializer
+    log_type = NotificationTypes.new_movie
 
     @swagger_auto_schema(
-        operation_description='Новый контент.',
+        operation_description='Новый фильм',
         request_body=MovieSerializer
     )
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().post(request)

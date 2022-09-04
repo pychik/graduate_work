@@ -1,16 +1,16 @@
 import asyncio
 import logging
-import websockets
-from websockets.exceptions import ConnectionClosedError
 
+import websockets
 from config import Settings
+from websockets.exceptions import ConnectionClosedError
 
 
 logger = logging.getLogger('websockets.server')
 logger.setLevel(logging.ERROR)
 logger.addHandler(logging.StreamHandler())
 
-people = {}
+people: dict = {}
 
 
 async def message_everybody(message):
@@ -78,7 +78,6 @@ async def receiver(websocket: websockets.WebSocketServerProtocol,) -> None:
         _user = name.strip()
         logger.error(f"{_user} исключен из-за несоблюдения правил чата")
         del people[_user]
-
 
 
 # Создаём сервер, который будет обрабатывать подключения
