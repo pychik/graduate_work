@@ -3,6 +3,7 @@ from itertools import chain, islice
 
 from config import settings
 from notify import DataModel
+from notify.utility.sms_sender import SmsClient
 from python_http_client.exceptions import HTTPError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, To
@@ -63,5 +64,8 @@ class SendgridSender:
             logging.info(f'Handled {len(b)} notifications')
 
 
-def get_mail_client(data):
-    return SendgridSender(data)
+def get_notification_client(data, transport):
+    if transport == 'email':
+        return SendgridSender(data)
+    elif transport == 'sms':
+        return SmsClient(data)

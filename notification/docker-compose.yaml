@@ -29,9 +29,6 @@ services:
     volumes:
       - n_rabbitmq:/var/lib/rabbitmq/
       - n_log_rabbitmq:/var/log/rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
 #================================
 #       WEB APPLICATION
@@ -50,7 +47,7 @@ services:
       - db
     volumes:
       - ./app:/app
-      - static:/conf/static
+      - static:/app/static
 
   #================================
   #       CELERY
@@ -83,4 +80,13 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - notification_app
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "1337:80"
+    volumes:
+      - static:/conf/static
+    depends_on:
       - notification_app
