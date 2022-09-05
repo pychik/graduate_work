@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 
 
@@ -7,6 +8,12 @@ class ReceiverBaseSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=30, required=True)
     last_name = serializers.CharField(max_length=150, required=False, allow_null=True)
     user_id = serializers.CharField(max_length=36, required=True)  # 36 for uuid
+
+    phone_regex = RegexValidator(
+        regex=r'^\+?\d{11}$',
+        message="Phone number must be entered in the format: '+79123456789'")
+
+    phone_number = serializers.CharField(validators=[phone_regex], max_length=12, required=False)
 
 
 class MovieBaseSerializer(serializers.Serializer):

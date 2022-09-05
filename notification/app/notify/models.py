@@ -29,6 +29,11 @@ class SexOptions(models.TextChoices):
     BOTH = ('FM', 'Всем')
 
 
+class TransportTypes(models.TextChoices):
+    email = ('email', 'email')
+    sms = ('sms', 'sms')
+
+
 class NotificationLogNewManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(stage=NotificationStages.new).exclude(locked=True)
@@ -54,6 +59,9 @@ class NotificationLog(models.Model):
                                          choices=NotificationTypes.choices,
                                          default='', blank=True)
     send_tries = models.IntegerField(default=0)
+
+    transport = models.CharField('transport', max_length=20, choices=TransportTypes.choices,
+                                 default=TransportTypes.email, blank=True)
 
     # managers
     objects = models.Manager()

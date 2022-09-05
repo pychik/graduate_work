@@ -1,6 +1,6 @@
 from django.utils import timezone
 from notify.models import NotificationLog, NotificationStages
-from notify.utility.email_sender import get_mail_client
+from notify.utility.email_sender import get_notification_client
 
 
 MAX_SEND_RETRIES = 5
@@ -23,14 +23,15 @@ class BaseHandler:
         self.nl.unlock()
 
     def send(self):
+        transport = self.nl.transport
         data_to_send = self.prepare_data()
 
         for data in data_to_send:
 
-            mail_client = get_mail_client(data)
+            notification_client = get_notification_client(data, transport)
 
             try:
-                mail_client.execute()
+                notification_client.execute()
             except Exception as e:
                 self.nl.log_error(e)
                 self.nl.change_stage(NotificationStages.failed)
