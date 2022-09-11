@@ -3,6 +3,7 @@ from django.urls import path
 
 from .yasg import urlpatterns as swagger_urls
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]

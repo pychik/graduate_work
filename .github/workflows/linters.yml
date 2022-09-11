@@ -1,4 +1,4 @@
-name: notifications_linters
+name: linters
 
 on:
 #  push:
