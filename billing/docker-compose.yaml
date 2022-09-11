@@ -2,6 +2,8 @@ version: "3.8"
 volumes:
   billing_db:
   static:
+  n_rabbitmq:
+  n_log_rabbitmq:
 services:
 #================================
 #      POSTGRES
@@ -19,6 +21,16 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=billing_db
 
+#================================
+#      RABBITMQ
+#================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: always
+    volumes:
+      - n_rabbitmq:/var/lib/rabbitmq/
+      - n_log_rabbitmq:/var/log/rabbitmq
 
 #================================
 #       WEB APPLICATION
@@ -38,3 +50,38 @@ services:
     volumes:
       - ./src:/src
       - static:/src/static
+
+  #================================
+  #       CELERY
+  #================================
+  celery-worker:
+    build: .
+    image: *billing_app
+    container_name: billing_celery_worker
+    command: >-
+      celery -A conf.celery:app worker --loglevel=INFO -c "8" -Ofair -E
+      -Q default
+    volumes:
+      - ./src:/src
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - db
+      - rabbitmq
+      - billing_app
+
+  celerybeat:
+    image: *billing_app
+    container_name: billing_celerybeat
+    command: >-
+      celery -A conf.celery:app beat --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - db
+      - rabbitmq
+      - billing_app

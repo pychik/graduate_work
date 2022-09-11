@@ -28,8 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django_celery_beat',
+    'django_celery_results',
     'rest_framework',
     'drf_yasg',
+
+    'apps.offer.apps.OfferConfig',
 ]
 
 MIDDLEWARE = [
@@ -96,6 +100,25 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+# CELERY SETTINGS
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'localhost')
+# Данная команда нужна будет, кода у нас разные воркеры
+# CELERY_TASK_ALWAYS_EAGER = False if CELERY_BROKER_URL else True
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# RESULT_BACKEND
+CELERY_RESULT_BACKEND = 'django-db'
+
+CELERY_ONCE = {
+    'backend': 'celery_once.backends.File',
+    'settings': {
+        'location': '/tmp/celery_once',  # noqa
+        'default_timeout': 60 * 60
+    }
+}
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # Internationalization
 LANGUAGE_CODE = 'ru-RU'
