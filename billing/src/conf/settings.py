@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     'apps.offer.apps.OfferConfig',
+    'apps.restapi.apps.RestapiConfig',
 ]
 
 MIDDLEWARE = [
