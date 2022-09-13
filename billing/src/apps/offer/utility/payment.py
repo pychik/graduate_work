@@ -18,8 +18,8 @@ class YookassaBilling(BillingInterface):
     #     # self._value = value
     #     # self._description = description
 
-    def create_payment(self, description: str, value: str) -> dict:
-        """Create and process payment via Yookassa agregator"""
+    def create_payment(self, description: str, value: str, payment_type: str) -> dict:
+        """Create and process payment via Yookassa aggregator"""
 
         Configuration.account_id = self.account_id
         Configuration.secret_key = self.secret_key
@@ -29,7 +29,7 @@ class YookassaBilling(BillingInterface):
                 "currency": "RUB"
             },
             "payment_method_data": {
-                "type": "bank_card"
+                "type": payment_type
             },
             "confirmation": {
                 "type": "redirect",
@@ -72,7 +72,7 @@ class YookassaBilling(BillingInterface):
         return json.loads(_payment.json())
 
     @staticmethod
-    def auto_payment(value: str, description: str, success_payment_id: str = None, ):
+    def auto_payment(value: str, description: str, payment_type: str, success_payment_id: str = None):
         """
         Auto payment logic
         """
@@ -86,7 +86,7 @@ class YookassaBilling(BillingInterface):
                     "currency": "RUB"
                 },
                 "payment_method_data": {
-                    "type": "bank_card"
+                    "type": payment_type
                 },
                 "confirmation": {
                     "type": "redirect",
@@ -98,7 +98,7 @@ class YookassaBilling(BillingInterface):
             })
             """
             возвращается
-                {
+            {
                   "id": "22e18a2f-000f-5000-a000-1db6312b7767",
                   "status": "succeeded",
                   "paid": true,
@@ -149,12 +149,12 @@ class YookassaBilling(BillingInterface):
             # подтверждене пользователя в этом случае не нужно
             _payment = Payment.create({
                 "amount": {
-                    "value": "2.00",
+                    "value": value,  # "2.00"
                     "currency": "RUB"
                 },
                 "capture": True,
-                "payment_method_id": success_payment_id,
-                "description": description
+                "payment_method_id": success_payment_id,  # "21740069-000f-50be-b000-0486ffbf45b0"
+                "description": description  # "subscribe_name probably"
             })
         return json.loads(_payment.json())
 
