@@ -1,6 +1,6 @@
 import json
 from yookassa import Configuration, Payment, Refund
-from graduate_work.core import settings
+from django.conf import settings
 from .interface import BillingInterface
 
 
@@ -12,52 +12,36 @@ class YookassaBilling(BillingInterface):
     secret_key = settings.YOOKASSA_API_SECRET
     redirect_url = settings.REDIRECT_URL
 
-    def __init__(self, description, subscribe_type_id, user_id, value):
-        self._subscribe_type_id = subscribe_type_id
-        self._user_id = user_id
-        self._value = value
-        self._description = description
+    # def __init__(self, ):
+    #     # self._subscribe_type_id = subscribe_type_id
+    #     # self._user_id = user_id
+    #     # self._value = value
+    #     # self._description = description
 
-    @property
-    def description(self):
-        return self._description
-
-    @property
-    def value(self):
-        return self._value
-
-    @property
-    def user_id(self):
-        return self._user_id
-
-    @property
-    def subscribe_type_id(self):
-        return self.subscribe_type_id
-
-    def create_payment(self) -> dict:
+    def create_payment(self, description: str, value: str) -> dict:
         """Create and process payment via Yookassa agregator"""
 
         Configuration.account_id = self.account_id
         Configuration.secret_key = self.secret_key
         _payment = Payment.create({
-                            "amount": {
-                                "value": self.value,
-                                "currency": "RUB"
-                            },
-                            "payment_method_data": {
-                                "type": "bank_card"
-                            },
-                            "confirmation": {
-                                "type": "redirect",
-                                "return_url": self.redirect_url
-                            },
-                            "capture": True,
-                            "description": self.description,
-                            "save_payment_method": True
+            "amount": {
+                "value": value,
+                "currency": "RUB"
+            },
+            "payment_method_data": {
+                "type": "bank_card"
+            },
+            "confirmation": {
+                "type": "redirect",
+                "return_url": self.redirect_url
+            },
+            "capture": True,
+            "description": description,
+            "save_payment_method": True
 
-                            })
-
-        """в ответе 
+        })
+        """
+        в ответе
             {
               "id": "2419a771-000f-5000-9000-1edaf29243f2",
               "status": "pending",
@@ -68,7 +52,8 @@ class YookassaBilling(BillingInterface):
               },
               "confirmation": {
                 "type": "redirect",
-                "confirmation_url": "https://yoomoney.ru/api-pages/v2/payment-confirm/epl?orderId=2419a771-000f-5000-9000-1edaf29243f2"
+                "confirmation_url":
+                 "https://yoomoney.ru/api-pages/v2/payment-confirm/epl?orderId=2419a771-000f-5000-9000-1edaf29243f2"
               },
               "created_at": "2019-03-12T11:10:41.802Z",
               "description": "Заказ №37",
@@ -85,7 +70,6 @@ class YookassaBilling(BillingInterface):
 
         # Отсюда мы вытаскиваем payment id и извне сохраняем вместе с description в бд?
         return json.loads(_payment.json())
-
 
     @staticmethod
     def auto_payment(value: str, description: str, success_payment_id: str = None, ):
@@ -112,7 +96,8 @@ class YookassaBilling(BillingInterface):
                 "description": description,
                 "save_payment_method": True
             })
-            """возвращается 
+            """
+            возвращается
                 {
                   "id": "22e18a2f-000f-5000-a000-1db6312b7767",
                   "status": "succeeded",
@@ -186,8 +171,3 @@ class YookassaBilling(BillingInterface):
             "payment_id": payment_id  # "21740069-000f-50be-b000-0486ffbf45b0"
         })
         return json.loads(_refund.json())
-
-
-
-
-

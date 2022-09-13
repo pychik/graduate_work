@@ -12,6 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
+YOOKASSA_ID = os.environ.get('YOOKASSA_ID')
+YOOKASSA_API_SECRET = os.environ.get('YOOKASSA_API_SECRET')
+REDIRECT_URL = "http://127.0.0.1:7777"
 
 DEBUG = True
 
