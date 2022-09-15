@@ -1,6 +1,9 @@
 import json
-from yookassa import Configuration, Payment, Refund
+
+# from yookassa_payout.configuration import Configuration
 from django.conf import settings
+from yookassa import Configuration, Payment, Refund
+
 from .interface import BillingInterface
 
 
@@ -12,13 +15,7 @@ class YookassaBilling(BillingInterface):
     secret_key = settings.YOOKASSA_API_SECRET
     redirect_url = settings.REDIRECT_URL
 
-    # def __init__(self, ):
-    #     # self._subscribe_type_id = subscribe_type_id
-    #     # self._user_id = user_id
-    #     # self._value = value
-    #     # self._description = description
-
-    def create_payment(self, description: str, value: str, payment_type: str) -> dict:
+    def create_payment(self, description: str, value: str, payment_type: str = 'bank_card') -> dict:
         """Create and process payment via Yookassa aggregator"""
 
         Configuration.account_id = self.account_id
