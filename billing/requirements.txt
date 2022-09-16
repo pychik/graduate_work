@@ -14,4 +14,4 @@ Django==4
 django-jazzmin==2.5.0
 django-extensions==3.2.1
 ipython==8.5.0
-
+kafka-python==2.0.2

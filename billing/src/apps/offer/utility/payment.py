@@ -1,6 +1,8 @@
 import json
-from yookassa import Configuration, Payment, Refund
+
 from django.conf import settings
+from yookassa import Configuration, Payment, Refund
+
 from .interface import BillingInterface
 
 
