@@ -38,6 +38,7 @@ INSTALLED_APPS = [
 
     'apps.offer.apps.OfferConfig',
     'apps.restapi.apps.RestapiConfig',
+    'apps.transactions.apps.TransactionsConfig',
 ]
 
 MIDDLEWARE = [
