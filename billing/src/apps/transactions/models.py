@@ -21,7 +21,7 @@ class Transaction(models.Model):
     status = models.CharField('Статус', max_length=20,
                               choices=TransactionStatuses.choices,
                               default=TransactionStatuses.new)
-    subscription_guid = models.ForeignKey('offer.Subscription', on_delete=models.DO_NOTHING)
+    subscription = models.ForeignKey('offer.Subscription', on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return f'Транзакция {self.user_id}: {self.guid}'

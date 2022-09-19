@@ -3,7 +3,11 @@ import http
 from apps.offer.models import Subscription, SubscriptionType
 from apps.offer.utility.payment import YookassaBilling
 from apps.restapi.v1.serializers.offer.subscribe import SubscribeSerialize
-from apps.restapi.v1.serializers.offer.transactions import NewTransactionSerializer
+from apps.restapi.v1.serializers.offer.transactions import (
+    NewTransactionSerializer,
+    TransactionSerializer,
+)
+from apps.transactions.models import Transaction
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
@@ -67,5 +71,11 @@ class TransactionListView(generics.ListAPIView):
 class TransactionDetailView(generics.RetrieveAPIView):
     """
     Класс API для получения данных по конкретному платежу
-    TODO: дописать.
     """
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    lookup_field = 'guid'
+
+    @swagger_auto_schema(operation_description='Данные по транзакции')
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
