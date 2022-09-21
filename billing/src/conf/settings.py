@@ -125,6 +125,11 @@ CELERY_ONCE = {
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+# Kafka
+KAFKA_URL = os.environ.get('KAFKA_URL', '')
+KAFKA_DEFAULT_SERIALIZER = os.environ.get('KAFKA_DEFAULT_SERIALIZER', 'json')
+KAFKA_DEFAULT_PREFIX_TOPIC = os.environ.get('KAFKA_DEFAULT_PREFIX_TOPIC', 'billing')
+
 # Internationalization
 LANGUAGE_CODE = 'ru-RU'
 
