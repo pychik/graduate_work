@@ -18,9 +18,8 @@ def generate_superuser(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
-    dependencies = [
-    ]
+    dependencies = [('offer', '0001_create_subscription_model')
+                    ]
 
     operations = [
         migrations.RunPython(generate_superuser),

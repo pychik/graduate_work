@@ -3,16 +3,22 @@ import uuid
 from django.db import models
 
 
-class Subscription(models.Model):
-    class SubscriptionType(models.TextChoices):
-        ENABLE = ('enable', 'Включена')
-        DISABLE = ('disable', 'Выключена')
-        ARCHIVE = ('archive', 'Архив')
+class SubscriptionCurrency(models.TextChoices):
+    RUB = ('RUB', 'Рубль')
+    USD = ('USD', 'Доллар')
+    EUR = ('EUR', 'Евро')
 
-    class SubscriptionCurrency(models.TextChoices):
-        RUB = ('RUB', 'Рубль')
-        USD = ('USD', 'Доллар')
-        EUR = ('EUR', 'Евро')
+
+class SubscriptionType(models.TextChoices):
+    ENABLE = ('enable', 'Включена')
+    DISABLE = ('disable', 'Выключена')
+    ARCHIVE = ('archive', 'Архив')
+
+
+class Subscription(models.Model):
+    """
+    Модель подписок
+    """
 
     guid = models.UUIDField(
         default=uuid.uuid4,
