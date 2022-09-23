@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  db_tests:
+    image: postgres:13.0-alpine
+    ports:
+      - "5432:5432"
+    env_file:
+      - tests/functional/.env
+
+  redis_test:
+    container_name: redis-tests
+    image: redis:alpine
+    hostname: redis
+    env_file:
+      - tests/functional/.env
+
+  app_tests:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: app-tests
+    depends_on:
+      - redis_test
+    image: flask-auth-image
+    env_file:
+      - tests/functional/.env
+    ports:
+      - '8000:8000'
+
+  tests:
+    container_name: tests
+    env_file:
+      - tests/functional/.env
+    image: flask-auth-image
+    entrypoint: >
+      sh -c 'pip install -r /app/tests/functional/requirements.txt
+      && python3 /app/tests/functional/utils/wait_for_redis.py
+      && pytest /app/tests/functional/src'
+
+networks:
+  default:
+    name: flask-project-net

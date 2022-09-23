@@ -1,21 +1,21 @@
 version: "3.8"
+
 volumes:
   billing_db:
-  static:
-  n_rabbitmq:
-  n_log_rabbitmq:
+  billing_static:
+  billing_rabbitmq:
+  billing_log_rabbitmq:
+
 services:
 #================================
 #      POSTGRES
 #================================
-  db:
+  billing_db:
     image: postgres:14-alpine
     container_name: billing_db
     restart: always
     volumes:
       - billing_db:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_USER=django
       - POSTGRES_PASSWORD=password
@@ -24,91 +24,65 @@ services:
 #================================
 #      RABBITMQ
 #================================
-  rabbitmq:
+  billing_rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
+    container_name: billing_rabbitmq
     restart: always
     volumes:
-      - n_rabbitmq:/var/lib/rabbitmq/
-      - n_log_rabbitmq:/var/log/rabbitmq
+      - billing_rabbitmq:/var/lib/rabbitmq/
+      - billing_log_rabbitmq:/var/log/rabbitmq
 
 #================================
 #       WEB APPLICATION
 #================================
   billing_app:
-    build: .
+    build:
+      context: .
+      dockerfile: ./billing/Dockerfile
     image: &billing_app billing_app
     container_name: billing_app
     restart: on-failure
     command: python manage.py runserver 0.0.0.0:8000
     env_file:
-      - .env
+      - ./billing/.env
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      - billing_db
     volumes:
-      - ./src:/src
-      - static:/src/static
+      - billing_static:/billing/src/static
 
   #================================
   #       CELERY
   #================================
-  celery-worker:
-    build: .
+  billing_celery-worker:
+    build:
+      context: .
+      dockerfile: ./billing/Dockerfile
     image: *billing_app
     container_name: billing_celery_worker
     command: >-
       celery -A conf.celery:app worker --loglevel=INFO -c "8" -Ofair -E
       -Q default
-    volumes:
-      - ./src:/src
     env_file:
-      - .env
+      - ./billing/.env
     environment:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
     depends_on:
-      - db
-      - rabbitmq
+      - billing_db
+      - billing_rabbitmq
       - billing_app
 
-  celerybeat:
+  billing_celerybeat:
     image: *billing_app
     container_name: billing_celerybeat
     command: >-
       celery -A conf.celery:app beat --loglevel=INFO
     env_file:
-      - .env
+      - ./billing/.env
     environment:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
     depends_on:
-      - db
-      - rabbitmq
+      - billing_db
+      - billing_rabbitmq
       - billing_app
-
-  #================================
-  #       KAFKA
-  #================================
-  movie-zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    container_name: movie_zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-  movie-kafka-broker:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: movie-kafka-broker
-    ports:
-      - "9092:9092"
-      - "9101:9101"
-    depends_on:
-      - movie-zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'movie_zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://movie-kafka-broker:29092,PLAINTEXT_INTERNAL://localhost:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1

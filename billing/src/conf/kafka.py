@@ -1,6 +1,6 @@
 import logging
 import pickle
-from typing import Any, ByteString, Dict
+from typing import Union, ByteString, Dict
 
 from conf.helper.decorators import backoff
 from conf.settings import KAFKA_DEFAULT_PREFIX_TOPIC
@@ -12,7 +12,9 @@ logger = logging.getLogger()
 
 
 class BillingKafkaProducer:
-    def __init__(self, servers: list = [settings.KAFKA_URL]) -> None:
+    def __init__(self, servers: list[str] = None) -> None:
+        if not servers:
+            servers = [settings.KAFKA_URL]
         self.servers = servers
         self.producer = self.get_producer()
 
@@ -21,7 +23,12 @@ class BillingKafkaProducer:
         # bootstrap_servers: 'host[:port]' string (or list of 'host[:port]'
         return KafkaProducer(bootstrap_servers=self.servers)
 
-    def push(self, topic: str, value: Any[Dict[str, str], ByteString], key: Any[ByteString, str] = None, **kwargs):
+    def push(
+        self,
+        topic: str,
+        value: Union[Dict[ByteString, ByteString], Dict[str, str]],
+        key: Union[ByteString, str] = None, **kwargs
+        ):
         if not self.producer:
             logger.warning('Kafka producer not set.')
             return
