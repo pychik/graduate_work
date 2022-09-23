@@ -28,7 +28,7 @@ class BillingKafkaProducer:
         topic: str,
         value: Union[Dict[ByteString, ByteString], Dict[str, str]],
         key: Union[ByteString, str] = None, **kwargs
-        ):
+    ):
         if not self.producer:
             logger.warning('Kafka producer not set.')
             return
