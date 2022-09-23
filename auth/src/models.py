@@ -114,7 +114,7 @@ class User(TimestampMixin, UserMixin, QuerysetMixin):
         return full_name or self.email
 
     def get_jwt_token(self, expire_time: int = configuration.ACCESS_TOKEN_EXPIRE_TIME):
-        expire_time = timedelta(seconds=expire_time)
+        expire_time = timedelta(seconds=expire_time)  # type: ignore
         access_token = create_access_token(identity=self.pk, expires_delta=expire_time)
         refresh_token = create_refresh_token(identity=self.pk, expires_delta=(expire_time * 24))
         return dict(access_token=access_token, refresh_token=refresh_token)

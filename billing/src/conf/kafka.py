@@ -38,7 +38,7 @@ class BillingKafkaProducer:
                 key = key.encode('utf-8')
 
         if isinstance(value, dict):
-            value = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+            value = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)  # type: ignore
         topic = f'{KAFKA_DEFAULT_PREFIX_TOPIC}-{topic}'
 
         self.producer.send(topic, value=value, key=key, **kwargs)

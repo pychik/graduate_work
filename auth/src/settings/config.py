@@ -67,4 +67,4 @@ MODES = {
     'dev': DevelopmentConfig,
     'test': TestingConfig,
 }
-configuration: MODES = MODES[CURRENT_MODE]()
+configuration: MODES = MODES[CURRENT_MODE]()  # type: ignore

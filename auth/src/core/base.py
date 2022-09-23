@@ -46,7 +46,7 @@ class ExternalAPIRouter(BaseAPIRouter):
         self._service = kwargs.get('service')
         self._version = kwargs.get('version')
 
-    def get_credentials(self) -> ClientAPICredentials:
+    def get_credentials(self) -> ClientAPICredentials:  # type: ignore
         if not self._credentials:
 
             if not self._service:
