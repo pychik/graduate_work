@@ -1,8 +1,8 @@
 import http
 
 from apps.offer.models import Subscription, SubscriptionType
-from apps.offer.utility.payment import YookassaBilling
 from apps.restapi.v1.filters import UserFilterBackend
+from apps.restapi.v1.pagination import PageNumberSizePagination
 from apps.restapi.v1.serializers.offer.subscribe import SubscribeSerialize
 from apps.restapi.v1.serializers.offer.transactions import (
     NewTransactionSerializer,
@@ -10,10 +10,10 @@ from apps.restapi.v1.serializers.offer.transactions import (
     UserIdSerializer,
 )
 from apps.transactions.models import Transaction
+from apps.transactions.utility.payment import YookassaBilling
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, status
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import filters, generics, status
 from rest_framework.views import APIView, Response
 
 
@@ -49,32 +49,33 @@ class NewTransactionView(generics.GenericAPIView):
         if serializer.is_valid():
             subscription = Subscription.objects.get(guid=serializer.data.get('subscription_id'))
             price = subscription.price
-            payment = YookassaBilling().create_payment(description='test', value=price, payment_type='bank_card')
-            url = payment.get('confirmation').get('confirmation_url')
-            # тут нужно будет сохранить транзакцию в базу
-
-            return Response(dict(url=url))
+            try:
+                payment = YookassaBilling().create_payment(description='test', value=price, payment_type='bank_card')
+            except Exception as e:
+                print(e)
+            else:
+                payment_system_id = payment.get('id')
+                url = payment.get('confirmation').get('confirmation_url')
+                # тут нужно будет сохранить транзакцию в базу
+                transaction = Transaction.objects.create(payment_system_id=payment_system_id, **serializer.data)
+                response_data = dict(url=url, transaction_id=transaction.guid)
+                return Response(data=response_data, status=http.HTTPStatus.CREATED)
 
         return Response(dict(errors=serializer.errors), status=http.HTTPStatus.BAD_REQUEST)
 
 
-class TransactionStatusReceiverView:
-    """
-    Класс API для получения статуса платежа от Юмани
-    """
-    # TODO: дописать.
-
-
-class TransactionListView(generics.ListAPIView):
+class TransactionListView(generics.GenericAPIView):
     """
     Класс API для получения данных по всем платежам юзера
     """
     queryset = Transaction.objects.all()
     serializer_class = UserIdSerializer
-    filter_backends = [UserFilterBackend]
-    pagination_class = PageNumberPagination
+    filter_backends = [UserFilterBackend, filters.OrderingFilter]
+    pagination_class = PageNumberSizePagination
     http_method_names = ['post']
     transaction_response = openapi.Response('transactions', TransactionSerializer(many=True))
+    ordering_fields = ['-created_at']
+    ordering = ['-created_at']
 
     @swagger_auto_schema(operation_description='Получение транзакций по user_id',
                          operation_id='user_transactions',
@@ -84,9 +85,11 @@ class TransactionListView(generics.ListAPIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             transactions = self.filter_queryset(self.get_queryset())
-            data = TransactionSerializer(transactions, many=True)
+            paginated_queryset = self.paginate_queryset(transactions)
+            data = TransactionSerializer(paginated_queryset, many=True)
+            paginated_response = self.get_paginated_response(data=data.data)
 
-            return Response(data.data, status=http.HTTPStatus.OK)
+            return paginated_response
         return Response(serializer.errors, status=http.HTTPStatus.BAD_REQUEST)
 
 

@@ -15,4 +15,5 @@ django-jazzmin==2.5.0
 django-extensions==3.2.1
 ipython==8.5.0
 yookassa-payout==2.4.0
-yookassa
+yookassa==2.3.2
+factory-boy==3.2.1
