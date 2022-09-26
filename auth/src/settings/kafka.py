@@ -1,6 +1,6 @@
 import pickle
 import logging
-from typing import Dict, Optional
+from typing import Optional
 
 from helpers.decorators import backoff
 from kafka import KafkaConsumer
@@ -9,7 +9,6 @@ from flask import Flask
 import click
 from settings.datastore import user_datastore
 from settings.datastore import security
-
 
 
 logger = logging.getLogger()
@@ -56,9 +55,9 @@ class AuthKafkaConsumer:
             user_roles = set(role.name for role in user.roles)
             if role_name := data.get('subscription_name', None):
                 role = user_datastore.find_or_create_role(
-                        name=role_name,
-                        description=data.get('subscription_description', None)
-                    )
+                    name=role_name,
+                    description=data.get('subscription_description', None)
+                )
 
                 if role and data.get('enable', None):
                     if role_name not in user_roles:
@@ -67,7 +66,8 @@ class AuthKafkaConsumer:
                     if role_name in user_roles:
                         user.delete_role(role, security)
 
-def init_kafka_commands(app:Flask):
+
+def init_kafka_commands(app: Flask):
 
     @app.cli.command()
     @click.argument('method')
