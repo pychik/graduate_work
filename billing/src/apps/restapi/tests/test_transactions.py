@@ -5,7 +5,7 @@ from apps.restapi.tests.base import BaseApiTestCase
 from apps.restapi.tests.data_factories import TransactionFactory
 from apps.restapi.tests.utils import reverse_with_query_params
 from apps.restapi.v1.views import NewTransactionView, TransactionDetailView, TransactionListView
-from apps.transactions.models import Transaction
+from apps.transactions.models import Transaction, UserSubscription
 from django.shortcuts import reverse
 
 
@@ -13,9 +13,6 @@ class TransactionTestCase(BaseApiTestCase):
 
     # def setUp(self) -> None:
     #     TransactionFactory.create_batch(50)
-
-    def tearDown(self) -> None:
-        Transaction.objects.all().delete()
 
     def test_transaction_detail(self):
         transaction = TransactionFactory.create()
@@ -70,12 +67,12 @@ class TransactionTestCase(BaseApiTestCase):
         subscription = Subscription.objects.first()
         view = NewTransactionView
         user_id = 1234554321
-        data = {'user_id': user_id, 'subscription_id': str(subscription.guid)}
+        data = {'user_id': user_id, 'subscription_id': str(subscription.guid), 'period': 'months', 'periods_number': 5}
         url = reverse('new-transaction')
 
         with mock.patch('apps.transactions.utility.payment.YookassaBilling.create_payment') as payment_mock:
             payment_mock.return_value = {
-                'amount': {'currency': 'RUB', 'value': subscription.price}, 'confirmation': {
+                'amount': {'currency': 'RUB', 'value': 2800.0}, 'confirmation': {
                     'confirmation_url': 'https://yoomoney.ru/checkout/payments/'
                                         'v2/contract?orderId=2ac23bfb-000f-5000-8000-169f4bc99e17',
                     'return_url': 'http://127.0.0.1:7777', 'type': 'redirect'},
@@ -91,5 +88,6 @@ class TransactionTestCase(BaseApiTestCase):
             response = self.call_post_api(view=view, url=url, expected_code=201, data=data, json_result=True)
         transaction_id = response.get('transaction_id')
         self.assertTrue(Transaction.objects.filter(guid=transaction_id).exists())
+        self.assertTrue(UserSubscription.objects.filter(transaction__guid=transaction_id).exists())
         self.assertTrue(response.get('url'))
         self.assertTrue(response.get('transaction_id'))

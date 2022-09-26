@@ -22,7 +22,7 @@ class BaseApiTestCase(APITestCase):
                                  content_type='application/json', data=json_data)
         response = view.as_view()(request, **(view_kwargs or {}))
         response_data = response.rendered_content
-        self.assertEqual(response.status_code, expected_code)
+        self.assertEqual(response.status_code, expected_code, f'{response_data}')
         if json_result:
             return json.loads(response_data)
         return response_data

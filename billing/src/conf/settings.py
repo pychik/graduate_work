@@ -145,3 +145,6 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SHELL_PLUS = "ipython"
+
+
+REFUND_GRACE_PERIOD = {'days': 3}
