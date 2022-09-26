@@ -11,6 +11,13 @@ then
     echo "PostgreSQL started"
 fi
 
+while ! nc -z -v $KAFKA_URL;
+do
+  >&2 echo "Kafka is unavailable, waiting 3 sec!"
+  sleep 3;
+done
+
+
 python manage.py migrate
 python manage.py collectstatic --no-input --clear
 
