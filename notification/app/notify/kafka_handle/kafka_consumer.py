@@ -22,30 +22,38 @@ class NotificationKafka:
 
     @staticmethod
     def _info_loader(data_packet: dict) -> None:
-        if isinstance(data_packet, dict) \
-            and (data_packet.get('notification_data').get('firstname')
-                 is not None and data_packet.get('notification_data').get('email')
-                 is not None and data_packet.get('notification_type') is not None):
-            _notification_type = data_packet.get("notification_type")
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-            # NotificationTypes
-            # billing_payment_status = ('billing_payment_status', 'billing_payment_status')
-            # billing_auto_payment = ('billing_auto_payment', 'billing_auto_payment')
-            # billing_subscription_expires = ('billing_subscription_expires', 'billing_subscription_expires')
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        if not isinstance(data_packet, dict):
+            logger.exception("NotificationKafka  sending log to Kafka:"
+                             " \'_info_loader\' received not valid data data_packet")
+            return None
+        _notification_type = data_packet.get("notification_type")
+        if not _notification_type:
+            logger.exception("NotificationKafka  sending log to Kafka:"
+                             " \'_info_loader\' received not valid data \'_notification_type\'")
+            return None
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # NotificationTypes
+        # billing_payment_status = ('billing_payment_status', 'billing_payment_status')
+        # billing_auto_payment = ('billing_auto_payment', 'billing_auto_payment')
+        # billing_subscription_expires = ('billing_subscription_expires', 'billing_subscription_expires')
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-            _notification_data = data_packet.get("notification_data")
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-            # dict(notification_data=datadict)
-            # datadict
-            #   firstname
-            #   email
-            #   payment_status or subscription_type
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        _notification_data = data_packet.get("notification_data")
+        firstname, email = _notification_data.get('firstname'), _notification_data.get('email')  # type: ignore
+        if not firstname and not email:
+            logger.exception("NotificationKafka  sending log to Kafka:"
+                             " \'_info_loader\' received not valid data \'notification_data\'")
+            return None
 
-            NotificationLog(notification_data=_notification_data, notification_type=_notification_type).save()
-        else:
-            logger.exception("NotificationKafka  sending log to Kafka: \'_info_loader\' received not valid data")
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # dict(notification_data=datadict)
+        # datadict
+        #   firstname
+        #   email
+        #   payment_status or subscription_type
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+        NotificationLog(notification_data=_notification_data, notification_type=_notification_type).save()
 
     def stop_consumer(self,) -> None:
         self._stop_consumer = True
