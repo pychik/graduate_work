@@ -86,3 +86,22 @@ services:
       - notify_db
       - notify_rabbitmq
       - notify_app
+
+  #================================
+  #       KAFKA-CONSUMER
+  #================================
+  notify_kafka_consumer:
+    build:
+      context: .
+      dockerfile: ./notification/Dockerfile
+    image: *notify_app
+    container_name: notify_kafka_consumer
+    restart: on-failure
+    command: python manage.py run_kafka_consumer
+    env_file:
+      - ./notification/.env
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - notify_db
+      - notify_app
