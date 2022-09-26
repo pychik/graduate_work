@@ -16,7 +16,8 @@ class Configuration(object):
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.environ.get('SECRET_KEY', 'very_secret')
-    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'very_salt')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'very_secret')
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'super-secret')
     PROPAGATE_EXCEPTIONS = True
     JWT_TOKEN_LOCATION = 'headers'
     ACCESS_TOKEN_EXPIRE_TIME = 60 * 60
@@ -40,6 +41,9 @@ class Configuration(object):
 
     JAEGER_HOST = os.environ.get('JAEGER_HOST', 'jaeger')
     JAEGER_PORT = os.environ.get('JAEGER_PORT', 6831)
+
+    KAFKA_URL = os.environ.get('KAFKA_URL', '')
+    KAFKA_DEFAULT_BILLING_TOPIC = os.environ.get('KAFKA_DEFAULT_BILLING_TOPIC', 'billing-auth')
 
 
 class ProductionConfig(Configuration):

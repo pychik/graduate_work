@@ -11,6 +11,8 @@ services:
   auth_db:
     image: postgres:13.0-alpine
     container_name: auth_db
+    ports:
+    - "5432:5432"
     volumes:
       - auth_postgres:/var/lib/postgresql/data/
     env_file:
@@ -36,14 +38,37 @@ services:
       context: .
       dockerfile: ./auth/Dockerfile
     container_name: auth_app
-    image: auth_app
+    image: &auth_app auth_app
     ports:
       - "8001:8001"
+    command: >
+      sh -c  'flask db upgrade && flask init-roles && flask init-admin &&
+      gunicorn -k gevent wsgi:app --bind 0.0.0.0:8001 --reload'
     env_file:
       - ./auth/.env
     depends_on:
       - auth_db
       - auth_redis
+
+#================================
+#       KAFKA CONSUMER
+#================================
+  auth_kafka_consumer:
+    build:
+      context: .
+      dockerfile: ./auth/Dockerfile
+    image: *auth_app
+    container_name: auth_kafka_consumer
+    command: flask init-kafka-consumer billing
+    restart: on-failure
+    env_file:
+       - ./auth/.env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+    depends_on:
+      - auth_app
+      - auth_redis
+      - auth_db
 
   #================================
   #       JAEGER
