@@ -26,7 +26,7 @@ class AuthKafkaConsumer:
     @backoff()
     def _get_consumer(self, topic: Optional[str] = None) -> Optional[KafkaConsumer]:
         # bootstrap_servers: 'host[:port]' string (or list of 'host[:port]'
-        if not topic:
+        if not topic:  # type: ignore
             logger.warning('Topic not specified, reading is not possible')
             return
 
@@ -39,7 +39,7 @@ class AuthKafkaConsumer:
         )
 
     def billing(self, topic: Optional[str] = None):
-        if not topic:
+        if not topic:  # type: ignore
             topic: str = Configuration.KAFKA_DEFAULT_BILLING_TOPIC
         self.consumer = self._get_consumer(topic=topic)
 
