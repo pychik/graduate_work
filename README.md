@@ -1,4 +1,4 @@
-# Проектная работа 9 спринта
+# Дипломная работа
 <p align="left">
     <a href="https://www.python.org/" target="blank">
         <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -8,29 +8,25 @@
     </a>
 </p>
 
-Ссылка на репозиторий - https://github.com/warrinot/notifications_sprint_1
+Ссылка на репозиторий - https://github.com/pychik/graduate_work
 
 Требования
 ===
 
 - Python 3.9+
-- FastAPI 0.61+
+- Django 0.61+
+- Celery 5.0+
+- RabbitMq
+- Kafka
 
 Установка
 ===
 
 ### Docker installation
 1. Установить [docker](https://docs.docker.com/engine/installation/)
-2. Настройка параметров в файле `.env`
+2. Настройка параметров в файле `.env` каждого из микросервисов. Для примера -env.dist
 3. Выполнить команду `docker-compose up`
-4. Адрес документации API:
-   * Swagger - `http://localhost:8000/swagger/`
-   * Коллекция для postman: [Link](/notification/swagger_collection.json)
 
-### Built With
-
-* [Gunicorn](https://docs.gunicorn.org/en/stable/) - WSGI HTTP Server for UNIX.
-* [Psycopg2-binary](https://www.psycopg.org/) - PostgreSQL database adapter for Python -- C optimisation distribution.
 
 Команда разработчиков
 ===
@@ -39,15 +35,26 @@
 * [Виталий Софронюк](https://github.com/Gilions)
 
 
-Notifications_Service
+Billing_Service
 ===
+Для функциональности Billing cервис связан с микросервисами нашего проекта- Notifications, Auth.
+Взаимодействие с сервисами происходит через Kafka. В сервисе используется Celery+RabbitMQ для создания задач по графику
 
-* Реализовано на Django + Celery + Rabbitmq(как брокер для Celery)
-* Сервис уведомлений по сути получает необходимые данные 
-от других сервисов и реализизует подготовку шаблонов
-и отправку данных пользователям
-* При получении данных через API создается notification_log с необходимыми данными и типом
-* Задача в celery(task_discover_new) подхватывает новые notification_log'и 
-и отправляет их в обработку в задачу task_process_log
-* В этой задаче выбирается обработчик по типу уведомления, подготавливаются данные и отправляются через SendGridClient
-* Так же реализована отправка из админки
+### На данных момент реализованы
+* Api routes:
+  * Создание новой транзакции оплаты
+  * Получение данных о подписках
+  * Получение данных по всем платежам пользователя с user_id
+  * Получение всех данных по конкретному платежу
+  * Создание возврата по транзакции
+    * Создан метод перерасчета времени использования подписки и возвращаемой суммы
+  * Route для получения статуса платежа от платежной системы
+* Обработка событий
+  * При изменение статуса в Billing, в топики notification, auth кладется 
+    информация для обработки, чтоб уведомить пользователя и сменить его роль
+* Частично офромлены тесты
+
+### Доработка
+* Тесты
+* Сделать обработку задач для Celery, проверка статуса подписок и срока автоплатежей
+* Добавить Схему с архитектурой проекта
