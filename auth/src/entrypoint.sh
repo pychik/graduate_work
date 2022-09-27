@@ -1,5 +1,4 @@
 #!/bin/sh
-
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."
@@ -7,12 +6,10 @@ then
     while ! nc -z $DB_HOST $DB_PORT; do
       sleep 0.1
     done
+    while ! nc -z $KAFKA_URL; do
+      sleep 3
+    done
 
-    echo "PostgreSQL started"
+    echo "PostgreSQL and Kafka services started"
 fi
-
-flask db upgrade
-flask init-roles
-flask init-admin
-gunicorn -k gevent wsgi:app --bind 0.0.0.0:8001 --reload
 exec "$@"

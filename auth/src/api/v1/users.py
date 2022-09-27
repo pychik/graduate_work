@@ -42,7 +42,7 @@ class Profile(Resource):
     @jwt_required()
     @jwt_roles_accepted(User, 'admin', 'manager', 'user')
     def get(self):
-        pk = get_jwt_identity()
+        pk = int(get_jwt_identity().split(':')[0])
         return User.query.get_or_404(pk)
 
     @api.doc(description='Update profile password')
@@ -53,7 +53,7 @@ class Profile(Resource):
         from schemas.users import PasswordSchema
 
         data = password_update_parser.parse_args()
-        user = User.query.get_or_404(get_jwt_identity())
+        user = User.query.get_or_404(int(get_jwt_identity().split(':')[0]))
 
         check_password = verify_password(data.get('old_password'), user.password)
         if not check_password:
@@ -77,7 +77,7 @@ class ProfileSessions(Resource):
     @jwt_roles_accepted(User, 'admin', 'manager', 'user')
     def get(self):
         args = list_parser.parse_args()
-        pk = get_jwt_identity()
+        pk = int(get_jwt_identity().split(':')[0])
         queryset = UserSessions.query.filter_by(user_id=pk).order_by(UserSessions.last_login.desc())
         return queryset.paginate(args['page'], args['per_page'], error_out=False)
 
@@ -85,6 +85,10 @@ class ProfileSessions(Resource):
 @api.route('/check_token/')
 class UserCheck(Resource):
     @api.doc(description='Check user authorization')
-    # @jwt_required()
+    @jwt_required()
     def post(self):
-        return {'success': True}, 200
+        context = {
+            'success': True,
+            'access': [role for role in get_jwt_identity().split(':')[1].split('-')]
+        }
+        return context, 200

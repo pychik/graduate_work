@@ -115,8 +115,10 @@ class User(TimestampMixin, UserMixin, QuerysetMixin):
 
     def get_jwt_token(self, expire_time: int = configuration.ACCESS_TOKEN_EXPIRE_TIME):
         expire_time = timedelta(seconds=expire_time)  # type: ignore
-        access_token = create_access_token(identity=self.pk, expires_delta=expire_time)
-        refresh_token = create_refresh_token(identity=self.pk, expires_delta=(expire_time * 24))
+        roles = '-'.join([role.name for role in self.roles])
+        identity = f'{self.pk}:{roles}'
+        access_token = create_access_token(identity=identity, expires_delta=expire_time)
+        refresh_token = create_refresh_token(identity=identity, expires_delta=(expire_time * 24))
         return dict(access_token=access_token, refresh_token=refresh_token)
 
     def add_role(self, role, security):
