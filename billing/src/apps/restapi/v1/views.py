@@ -15,6 +15,7 @@ from apps.restapi.v1.serializers.offer.transactions import (
 )
 from apps.transactions.models import Refund, Transaction, TransactionStatuses, UserSubscription
 from apps.transactions.utility.payment import YookassaBilling
+from conf.kafka import BillingKafkaProducer
 from django.utils import timezone
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -217,6 +218,7 @@ class PaymentSystemNotification(APIView):
       }
     }
     """
+
     def post(self, request, *args, **kwargs):
         # тут мы пропарсим данные и поменяем статусы у Transaction, UserSubscription
         # а потом отправим данные об оплате в кафку для auth сервиса и notification сервиса.
@@ -235,6 +237,18 @@ class PaymentSystemNotification(APIView):
                 _transaction.user_subscription.paid_at = timezone.now()
                 _transaction.user_subscription.save()
                 _transaction.save()
-            # Сделать таску для отправки в кафку? и делать тут delay?
+                # Сделать таску для отправки в кафку? и делать тут delay?
+                kafka_client = BillingKafkaProducer()
+                auth_data = {
+                    "user_id": _transaction.user_id,
+                    "subscription_name": _transaction.subscription.name,
+                    "subscription_description": _transaction.subscription.description,
+                    "enable": True
+                }
+                notification_data = {"user_id": _transaction.user_id,
+                                     "notification_type": 'billing_payment_status',
+                                     "message": 'Payment succeeded'}
+                kafka_client.push(topic='auth', value=auth_data)
+                kafka_client.push(topic='notification', value=notification_data)
         finally:
             return Response(status=http.HTTPStatus.OK)
