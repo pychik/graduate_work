@@ -1,4 +1,4 @@
-from apps.transactions.models import Transaction, SubscriptionPeriods
+from apps.transactions.models import SubscriptionPeriods, Transaction
 from rest_framework import serializers
 
 

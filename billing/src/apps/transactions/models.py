@@ -1,12 +1,12 @@
 import math
 import uuid
 
-from django.db import models
-from dateutil.relativedelta import relativedelta
-from django.utils import timezone
-from django.conf import settings
-
 from apps.offer.models import SubscriptionCurrency
+from apps.restapi.errors import NotPaidYetError
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
 
 
 class TransactionStatuses(models.TextChoices):
@@ -30,6 +30,11 @@ class Transaction(models.Model):
     subscription = models.ForeignKey('offer.Subscription', on_delete=models.DO_NOTHING)
     payment_system_id = models.CharField(max_length=50, default='')
     amount = models.DecimalField('Сумма', decimal_places=2, max_digits=10, default=0.0)
+    currency = models.CharField(verbose_name='Валюта',
+                                max_length=3,
+                                choices=SubscriptionCurrency.choices,
+                                default=SubscriptionCurrency.RUB
+                                )
 
     def __str__(self):
         return f'Транзакция {self.user_id}: {self.guid}'
@@ -99,6 +104,8 @@ class UserSubscription(models.Model):
         пропорционально оставшемуся времени подписки
         Так же вводим grace_period, в течение которого можно вернуть деньги полностью
         """
+        if not self.paid_at:
+            raise NotPaidYetError
         time_passed = timezone.now() - self.paid_at
         grace_period = timezone.timedelta(**settings.REFUND_GRACE_PERIOD)
         if grace_period <= time_passed:
@@ -108,7 +115,7 @@ class UserSubscription(models.Model):
         full_amount = self.expires_at - self.paid_at
         time_left = self.expires_at - timezone.now()
         left = time_left / full_amount
-        to_refund = math.ceil(self.amount * left)
+        to_refund = math.ceil(float(self.amount) * left)
         return to_refund
 
 

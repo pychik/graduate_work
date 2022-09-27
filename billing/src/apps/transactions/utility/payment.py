@@ -15,11 +15,15 @@ class YookassaBilling(BillingInterface):
     secret_key = settings.YOOKASSA_API_SECRET
     redirect_url = settings.REDIRECT_URL
 
+    def __init__(self):
+        Configuration.account_id = self.account_id
+        Configuration.secret_key = self.secret_key
+
     def create_payment(self, description: str, value: str, currency: str, payment_type: str = 'bank_card') -> dict:
         """Create and process payment via Yookassa aggregator"""
 
-        Configuration.account_id = self.account_id
-        Configuration.secret_key = self.secret_key
+        # Configuration.account_id = self.account_id
+        # Configuration.secret_key = self.secret_key
         _payment = Payment.create({
             "amount": {
                 "value": value,

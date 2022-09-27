@@ -2,15 +2,17 @@ import http
 import logging
 
 from apps.offer.models import Subscription, SubscriptionType
+from apps.restapi.errors import NotPaidYetError
 from apps.restapi.v1.filters import UserFilterBackend
 from apps.restapi.v1.pagination import PageNumberSizePagination
 from apps.restapi.v1.serializers.offer.subscribe import SubscribeSerialize
 from apps.restapi.v1.serializers.offer.transactions import (
     NewTransactionSerializer,
+    RefundSerializer,
     TransactionSerializer,
-    UserIdSerializer, RefundSerializer,
+    UserIdSerializer,
 )
-from apps.transactions.models import Transaction, Refund, UserSubscription
+from apps.transactions.models import Refund, Transaction, UserSubscription
 from apps.transactions.utility.payment import YookassaBilling
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -68,8 +70,10 @@ class NewTransactionView(generics.GenericAPIView):
                 payment_system_id = payment.get('id')
                 _transaction.payment_system_id = payment_system_id
                 _transaction.amount = amount
+                _transaction.currency = subscription.currency
                 _transaction.save()
 
+                user_subscription.currency = subscription.currency
                 user_subscription.save()
 
                 url = payment.get('confirmation').get('confirmation_url')
@@ -124,36 +128,42 @@ class TransactionDetailView(generics.RetrieveAPIView):
 
 class TransactionRefundView(APIView):
     serializer_class = RefundSerializer
+    # refund_response = openapi.Response('transactions', RefundSerializer(many=True))
+    http_method_names = ['post']
 
     @swagger_auto_schema(operation_description='Создание возврата по транзакции',
                          operation_id='transaction-refund')
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            _transaction = Transaction.objects.get(guid=serializer.transaction_id)
-            amount = _transaction.user_subscription.calculate_refund_amount()
-            currency = 1  # TODO: куда то положить еще
-
-            refund = YookassaBilling.refund_payment(payment_id=_transaction.payment_system_id,
-                                                    amount=amount)
-            refund_status = refund.get('status')
-            refund_db = Refund(transaction=_transaction,
-                               status=refund_status,
-                               payment_system_id=refund.get('id'),
-                               amount=amount,
-                               currency=currency
-                               )
-            if refund_status == 'canceled':
-                response_data = refund.get('cancelation_details')
-                refund_db.cancellation_details = response_data
-
+            _transaction = Transaction.objects.get(guid=serializer.data.get('transaction_id'))
+            try:
+                amount = _transaction.user_subscription.calculate_refund_amount()
+            except NotPaidYetError:
+                message = 'Transaction still not paid'
+                logging.error(message)
+                response_data = dict(error=message)
+                status_code = http.HTTPStatus.BAD_REQUEST
             else:
-                response_data = dict(status='success', amount=amount)
-            refund_db.save()
-            return Response(data=response_data, status=http.HTTPStatus.CREATED)
+                currency = _transaction.currency  # TODO: куда то положить еще
 
+                refund = YookassaBilling().refund_payment(payment_id=_transaction.payment_system_id,
+                                                          amount=amount, currency=currency)
+                refund_status = refund.get('status')
+                refund_db = Refund(transaction=_transaction,
+                                   status=refund_status,
+                                   payment_system_id=refund.get('id'),
+                                   amount=amount,
+                                   currency=currency
+                                   )
+                if refund_status == 'canceled':
+                    response_data = refund.get('cancelation_details')
+                    refund_db.cancellation_details = response_data
 
+                else:
+                    response_data = dict(status='success', amount=amount)
+                refund_db.save()
+                status_code = http.HTTPStatus.CREATED
+            return Response(data=response_data, status=status_code)
 
-            # достаем данные
-            # ищем транзакцию, достаем из нее (что?)
         return Response(data=serializer.errors, status=http.HTTPStatus.BAD_REQUEST)
