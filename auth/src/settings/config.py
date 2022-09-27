@@ -45,6 +45,9 @@ class Configuration(object):
     KAFKA_URL = os.environ.get('KAFKA_URL', '')
     KAFKA_DEFAULT_BILLING_TOPIC = os.environ.get('KAFKA_DEFAULT_BILLING_TOPIC', 'billing-auth')
 
+    # Internal auth
+    API_KEY = os.environ.get('API_KEY', '')
+
 
 class ProductionConfig(Configuration):
     FLASK_ENV = 'production'

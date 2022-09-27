@@ -1,12 +1,14 @@
-from http.client import NOT_FOUND, OK, UNPROCESSABLE_ENTITY
+from http.client import NOT_FOUND, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY
 
+from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restx import Namespace, Resource, abort, fields
 from flask_security.utils import hash_password, verify_password
 from helpers.decorators import jwt_roles_accepted
-from helpers.parsers import list_parser, password_update_parser
+from helpers.parsers import list_parser, password_update_parser, user_data_parser
 from marshmallow import ValidationError
 from models import User, UserSessions
+from settings.config import configuration
 
 
 api = Namespace('users', description='Users profile')
@@ -92,3 +94,16 @@ class UserCheck(Resource):
             'access': [role for role in get_jwt_identity().split(':')[1].split('-')]
         }
         return context, 200
+
+
+@api.route('/user_profile/')
+class UserProfile(Resource):
+    @api.marshal_with(user_schema, envelope='profile')
+    @api.expect(user_data_parser)
+    def post(self):
+        if api_key := request.headers.get('api_key'):
+            if api_key != configuration.API_KEY:
+                abort(UNAUTHORIZED, errors=['api_key is not valid'])
+            args = user_data_parser.parse_args()
+            return User.query.get_or_404(args.get('user_id'))
+        abort(UNAUTHORIZED, errors=['api_key not found'])
