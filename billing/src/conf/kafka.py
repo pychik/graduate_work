@@ -1,6 +1,6 @@
 import logging
 import pickle
-from typing import Union, ByteString, Dict
+from typing import ByteString, Dict, Union
 
 from conf.helper.decorators import backoff
 from conf.settings import KAFKA_DEFAULT_PREFIX_TOPIC

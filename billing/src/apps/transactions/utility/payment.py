@@ -15,15 +15,19 @@ class YookassaBilling(BillingInterface):
     secret_key = settings.YOOKASSA_API_SECRET
     redirect_url = settings.REDIRECT_URL
 
-    def create_payment(self, description: str, value: str, payment_type: str = 'bank_card') -> dict:
-        """Create and process payment via Yookassa aggregator"""
-
+    def __init__(self):
         Configuration.account_id = self.account_id
         Configuration.secret_key = self.secret_key
+
+    def create_payment(self, description: str, value: str, currency: str, payment_type: str = 'bank_card') -> dict:
+        """Create and process payment via Yookassa aggregator"""
+
+        # Configuration.account_id = self.account_id
+        # Configuration.secret_key = self.secret_key
         _payment = Payment.create({
             "amount": {
                 "value": value,
-                "currency": "RUB"
+                "currency": currency
             },
             "payment_method_data": {
                 "type": payment_type
@@ -156,15 +160,29 @@ class YookassaBilling(BillingInterface):
         return json.loads(_payment.json())
 
     @staticmethod
-    def refund_payment(value: str, payment_id: str):
+    def refund_payment(amount: float, payment_id: str, currency: str):
         """
         Refund logic
         """
         _refund = Refund.create({
             "amount": {
-                "value": value,  # "2.00"
-                "currency": "RUB"
+                "value": amount,  # "2.00"
+                "currency": currency
             },
             "payment_id": payment_id  # "21740069-000f-50be-b000-0486ffbf45b0"
         })
+
+        """
+        Response example
+          {
+            "id": "216749f7-0016-50be-b000-078d43a63ae4",
+            "status": "succeeded",
+            "amount": {
+              "value": "2.00",
+              "currency": "RUB"
+            },
+            "created_at": "2017-10-04T19:27:51.407Z",
+            "payment_id": "21740069-000f-50be-b000-0486ffbf45b0"
+          }
+        """
         return json.loads(_refund.json())
