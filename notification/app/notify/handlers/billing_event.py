@@ -4,7 +4,7 @@ from notify.utils import get_rendered_template
 from .base import BaseHandler
 
 
-# TODO update methods of class
+# TODO create general class with notification type checker
 class BillingPaymentHandler(BaseHandler):
     template_name = 'billing_payment_status.html'
     subject = 'Yandex payment status'
@@ -13,8 +13,8 @@ class BillingPaymentHandler(BaseHandler):
         data = self.nl.notification_data
 
         user_list = [UserData(**data)]
-        payment_status = data.get('payment_status')
-        values = dict(payment_status=payment_status)
+        payment_status = data.get('message')
+        values = dict(first_name=data.get('first_name'), payment_status=payment_status)
         template = get_rendered_template(self.template_name, values)
         subject = self.subject
 
@@ -37,8 +37,8 @@ class BillingSubsExpiresHandler(BaseHandler):
         data = self.nl.notification_data
 
         user_list = [UserData(**data)]
-        subscription_type = data.get('subscription_type')
-        values = dict(subscription_type=subscription_type)
+        subscription_type = data.get('message')
+        values = dict(first_name=data.get('first_name'), subscription_type=subscription_type)
         template = get_rendered_template(self.template_name, values)
         subject = self.subject
 
@@ -61,8 +61,8 @@ class BillingAutoPaymentHandler(BaseHandler):
         data = self.nl.notification_data
 
         user_list = [UserData(**data)]
-        subscription_type = data.get('subscription_type')
-        values = dict(subscription_type=subscription_type)
+        subscription_type = data.get('message')
+        values = dict(first_name=data.get('first_name'), subscription_type=subscription_type)
         template = get_rendered_template(self.template_name, values)
         subject = self.subject
 

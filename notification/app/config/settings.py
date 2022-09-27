@@ -159,3 +159,8 @@ NOTIFICATION_KAFKA_TOPIK = 'billing-notification'
 KAFKA_DEFAULT_SERIALIZER = os.getenv('KAFKA_DEFAULT_SERIALIZER', 'json')
 KAFKA_URL = os.getenv('KAFKA_URL', 'localhost:29092')
 KAFKA_GROUP_ID = 'notification_billing_group'
+
+# Auth
+AUTH_URL = 'http://auth_app:8001/api/v1/users/user_profile/'
+
+API_KEY = os.getenv('API_KEY')
