@@ -138,3 +138,12 @@ callback_code_parser.add_argument(
     help='Callback code',
     location='args'
 )
+
+user_data_parser = reqparse.RequestParser(bundle_errors=True)
+user_data_parser.add_argument(
+    'user_id',
+    required=True,
+    type=int,
+    help='User pk',
+    location='json'
+)
