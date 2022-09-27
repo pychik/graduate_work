@@ -21,6 +21,9 @@ class NotificationTypes(models.TextChoices):
     assignment = ('assignment', 'assignment')
     delayed = ('delayed', 'delayed')
     birthday = ('birthday', 'birthday')
+    billing_payment_status = ('billing_payment_status', 'billing_payment_status')
+    billing_auto_payment = ('billing_auto_payment', 'billing_auto_payment')
+    billing_subscription_expires = ('billing_subscription_expires', 'billing_subscription_expires')
 
 
 class SexOptions(models.TextChoices):
@@ -55,7 +58,7 @@ class NotificationLog(models.Model):
                              default=NotificationStages.new, blank=True)
     stages_data = JSONField(encoder=DjangoJSONEncoder, blank=True, default=dict)
     notification_type = models.CharField('notification_type',
-                                         max_length=20,
+                                         max_length=30,
                                          choices=NotificationTypes.choices,
                                          default='', blank=True)
     send_tries = models.IntegerField(default=0)

@@ -153,3 +153,9 @@ BATCH_SIZE = 25
 SHORT_LINK_SIZE = 7
 
 REDIRECT_AFTER_ACTIVATION = 'https://movies_service_main_page'
+
+# Kaffka creds
+NOTIFICATION_KAFKA_TOPIK = 'billing-notification'
+KAFKA_DEFAULT_SERIALIZER = os.getenv('KAFKA_DEFAULT_SERIALIZER', 'json')
+KAFKA_URL = os.getenv('KAFKA_URL', 'localhost:29092')
+KAFKA_GROUP_ID = 'notification_billing_group'

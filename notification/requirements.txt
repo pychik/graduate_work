@@ -12,3 +12,4 @@ djangorestframework==3.13.1
 django-filter==22.1
 drf-yasg==1.21.3
 pydantic==1.10.0
+kafka-python==2.0.2

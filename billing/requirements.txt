@@ -17,3 +17,5 @@ ipython==8.5.0
 yookassa-payout==2.4.0
 yookassa==2.3.2
 factory-boy==3.2.1
+yookassa
+kafka-python==2.0.2
