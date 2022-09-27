@@ -2,8 +2,6 @@ import http
 import json
 import logging
 
-from django.utils import timezone
-
 from apps.offer.models import Subscription, SubscriptionType
 from apps.restapi.errors import NotPaidYetError
 from apps.restapi.v1.filters import UserFilterBackend
@@ -17,6 +15,7 @@ from apps.restapi.v1.serializers.offer.transactions import (
 )
 from apps.transactions.models import Refund, Transaction, TransactionStatuses, UserSubscription
 from apps.transactions.utility.payment import YookassaBilling
+from django.utils import timezone
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, generics, status

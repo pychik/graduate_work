@@ -1,0 +1,107 @@
+version: "3.8"
+
+volumes:
+  notify_db:
+  notify_static:
+  notify_rabbitmq:
+  notify_log_rabbitmq:
+
+services:
+#================================
+#      POSTGRES
+#================================
+  notify_db:
+    image: postgres:14-alpine
+    container_name: notify_db
+    restart: always
+    volumes:
+      - notify_db:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=123qwe
+      - POSTGRES_DB=notification_db
+
+    #================================
+    #      RABBITMQ
+    #================================
+  notify_rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: notify_rabbitmq
+    restart: always
+    volumes:
+      - notify_rabbitmq:/var/lib/rabbitmq/
+      - notify_log_rabbitmq:/var/log/rabbitmq
+
+#================================
+#       WEB APPLICATION
+#================================
+  notify_app:
+    build:
+      context: .
+      dockerfile: ./notification/Dockerfile
+    image: &notify_app notify_app
+    container_name: notify_app
+    restart: on-failure
+    command: python manage.py runserver 0.0.0.0:8002
+    env_file:
+      - ./notification/.env
+    ports:
+      - "8002:8002"
+    depends_on:
+      - notify_db
+    volumes:
+      - notify_static:/app/static
+
+  #================================
+  #       CELERY
+  #================================
+  notify_celery-worker:
+    build:
+      context: .
+      dockerfile: ./notification/Dockerfile
+    image: *notify_app
+    container_name: notify_celery-worker
+    command: >-
+      celery -A config.celery:app worker --loglevel=INFO -c "8" -Ofair -E
+      -Q default
+    env_file:
+      - ./notification/.env
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - notify_db
+      - notify_rabbitmq
+      - notify_app
+
+  notify_celerybeat:
+    image: *notify_app
+    container_name: notify_celerybeat
+    command: >-
+      celery -A config.celery:app beat --loglevel=INFO
+    env_file:
+      - ./notification/.env
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - notify_db
+      - notify_rabbitmq
+      - notify_app
+
+  #================================
+  #       KAFKA-CONSUMER
+  #================================
+  notify_kafka_consumer:
+    build:
+      context: .
+      dockerfile: ./notification/Dockerfile
+    image: *notify_app
+    container_name: notify_kafka_consumer
+    restart: on-failure
+    command: python manage.py run_kafka_consumer
+    env_file:
+      - ./notification/.env
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - notify_db
+      - notify_app

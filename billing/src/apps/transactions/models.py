@@ -92,14 +92,13 @@ class UserSubscription(models.Model):
             self.save()
         return sub_time
 
-    def calculate_amount(self, set_value=False):
+    def calculate_amount(self, set_value):
         if self.period == SubscriptionPeriods.months:
             amount = self.periods_number * self.subscription.price
         else:
             amount = self.periods_number * self.subscription.price * 12
         if set_value:
             self.amount = amount
-            # self.save()
         return amount
 
     def calculate_refund_amount(self):
