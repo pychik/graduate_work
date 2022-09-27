@@ -81,21 +81,25 @@ class UserSubscription(models.Model):
     def __str__(self):
         return f'{self.user_id}: {self.subscription.name} : {self.status}'
 
-    def calculate_sub_time(self, start_from=timezone.now()):
+    def calculate_sub_time(self, start_from=timezone.now(), set_value=False):
         """
         Расчет времени подписки
         """
 
         sub_time = start_from + relativedelta(**{self.period: self.periods_number})
+        if set_value:
+            self.expires_at = sub_time
+            self.save()
         return sub_time
 
-    def calculate_amount(self, set_value):
+    def calculate_amount(self, set_value=False):
         if self.period == SubscriptionPeriods.months:
             amount = self.periods_number * self.subscription.price
         else:
             amount = self.periods_number * self.subscription.price * 12
         if set_value:
             self.amount = amount
+            self.save()
         return amount
 
     def calculate_refund_amount(self):

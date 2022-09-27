@@ -29,6 +29,7 @@ jobs:
         pip install types-tabulate
         pip install types-requests
         pip install flake8-html
+        pip install types-python-dateutil
     - name: Check imports with isort
       id: isort
       run: isort $(git ls-files '*.py')

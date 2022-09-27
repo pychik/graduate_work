@@ -1,4 +1,5 @@
 import http
+import json
 import logging
 
 from apps.offer.models import Subscription, SubscriptionType
@@ -12,12 +13,13 @@ from apps.restapi.v1.serializers.offer.transactions import (
     TransactionSerializer,
     UserIdSerializer,
 )
-from apps.transactions.models import Refund, Transaction, UserSubscription
+from apps.transactions.models import Refund, Transaction, TransactionStatuses, UserSubscription
 from apps.transactions.utility.payment import YookassaBilling
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, generics, status
 from rest_framework.views import APIView, Response
+from yookassa.domain.notification import WebhookNotification
 
 
 class SubscribesView(APIView):
@@ -167,3 +169,69 @@ class TransactionRefundView(APIView):
             return Response(data=response_data, status=status_code)
 
         return Response(data=serializer.errors, status=http.HTTPStatus.BAD_REQUEST)
+
+
+class PaymentSystemNotification(APIView):
+    """
+    Класс API для получения статуса платежа от системы оплаты
+    {
+      "type": "notification",
+      "event": "payment.success",
+      "object": {
+        "id": "22d6d597-000f-5000-9000-145f6df21d6f",
+        "status": "success",
+        "paid": true,
+        "amount": {
+          "value": "2.00",
+          "currency": "RUB"
+        },
+        "authorization_details": {
+          "rrn": "10000000000",
+          "auth_code": "000000",
+          "three_d_secure": {
+            "applied": true
+          }
+        },
+        "created_at": "2018-07-10T14:27:54.691Z",
+        "description": "Заказ №72",
+        "expires_at": "2018-07-17T14:28:32.484Z",
+        "metadata": {},
+        "payment_method": {
+          "type": "bank_card",
+          "id": "22d6d597-000f-5000-9000-145f6df21d6f",
+          "saved": false,
+          "card": {
+            "first6": "555555",
+            "last4": "4444",
+            "expiry_month": "07",
+            "expiry_year": "2021",
+            "card_type": "MasterCard",
+          "issuer_country": "RU",
+          "issuer_name": "Sberbank"
+          },
+          "title": "Bank card *4444"
+        },
+        "refundable": false,
+        "test": false
+      }
+    }
+    """
+    def post(self, request, *args, **kwargs):
+        # тут мы пропарсим данные и поменяем статусы у Transaction, UserSubscription
+        # а потом отправим данные об оплате в кафку для auth сервиса и notification сервиса.
+        try:
+            event_json = json.loads(request.body)
+            notification_object = WebhookNotification(event_json)
+
+        except Exception as e:
+            logging.error(f'Error parsing notification: {str(e)}')
+        else:
+            payment = notification_object.object
+            if payment.status == 'succeeded' and payment.paid:
+                _transaction = Transaction.objects.get(payment_system_id=payment.id)
+                _transaction.status = TransactionStatuses.paid
+                _transaction.user_subscription.calculate_sub_time(set_value=True)
+                _transaction.save()
+            # Сделать таску для отправки в кафку? и делать тут delay?
+        finally:
+            return Response(status=http.HTTPStatus.OK)
