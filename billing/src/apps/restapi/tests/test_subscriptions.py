@@ -1,3 +1,5 @@
+import http
+
 from apps.offer.models import Subscription
 from apps.restapi.tests.base import BaseApiTestCase
 from apps.restapi.v1.views import SubscribesView
@@ -13,7 +15,7 @@ class SubscriptionsTestCase(BaseApiTestCase):
         view = SubscribesView
         url = reverse('subscriptions')
 
-        response = self.call_get_api(view=view, url=url, expected_code=200, json_result=True)
+        response = self.call_get_api(view=view, url=url, expected_code=http.HTTPStatus.OK, json_result=True)
         expected = [dict(guid=str(sub.guid),
                          name=sub.name,
                          description=sub.description,

@@ -14,8 +14,9 @@ from apps.restapi.v1.serializers.offer.transactions import (
     UserIdSerializer,
 )
 from apps.transactions.models import Refund, Transaction, TransactionStatuses, UserSubscription
+from apps.transactions.tasks import task_send_kafka
 from apps.transactions.utility.payment import YookassaBilling
-from conf.kafka import BillingKafkaProducer
+from conf.errors import error_pars_notification, not_paid, payment_failed, payment_success
 from django.utils import timezone
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -67,9 +68,9 @@ class NewTransactionView(generics.GenericAPIView):
                                                            payment_type='bank_card')
             except Exception as e:
                 logging.error(str(e))
-                logging.error('Payment failed')
+                logging.error(payment_failed)
             else:
-                logging.info('Payment successful')
+                logging.info(payment_success)
 
                 payment_system_id = payment.get('id')
                 _transaction.payment_system_id = payment_system_id
@@ -144,7 +145,7 @@ class TransactionRefundView(APIView):
             try:
                 amount = _transaction.user_subscription.calculate_refund_amount()
             except NotPaidYetError:
-                message = 'Transaction still not paid'
+                message = not_paid
                 logging.error(message)
                 response_data = dict(error=message)
                 status_code = http.HTTPStatus.BAD_REQUEST
@@ -227,7 +228,7 @@ class PaymentSystemNotification(APIView):
             notification_object = WebhookNotification(event_json)
 
         except Exception as e:
-            logging.error(f'Error parsing notification: {str(e)}')
+            logging.error(f'{error_pars_notification}: {str(e)}')
         else:
             payment = notification_object.object
             if payment.status == 'succeeded' and payment.paid:
@@ -237,18 +238,17 @@ class PaymentSystemNotification(APIView):
                 _transaction.user_subscription.paid_at = timezone.now()
                 _transaction.user_subscription.save()
                 _transaction.save()
-                # Сделать таску для отправки в кафку? и делать тут delay?
-                kafka_client = BillingKafkaProducer()
+
                 auth_data = {
-                    "user_id": _transaction.user_id,
-                    "subscription_name": _transaction.subscription.name,
-                    "subscription_description": _transaction.subscription.description,
-                    "enable": True
+                    'user_id': _transaction.user_id,
+                    'subscription_name': _transaction.subscription.name,
+                    'subscription_description': _transaction.subscription.description,
+                    'enable': True
                 }
-                notification_data = {"user_id": _transaction.user_id,
-                                     "notification_type": 'billing_payment_status',
-                                     "message": 'Payment succeeded'}
-                kafka_client.push(topic='auth', value=auth_data)
-                kafka_client.push(topic='notification', value=notification_data)
+                notification_data = {'user_id': _transaction.user_id,
+                                     'notification_type': 'billing_payment_status',
+                                     'message': 'Payment succeeded'}
+                task_send_kafka.delay(topic='auth', data=auth_data)
+                task_send_kafka.delay(topic='notification', data=notification_data)
         finally:
             return Response(status=http.HTTPStatus.OK)

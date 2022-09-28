@@ -2,6 +2,7 @@ import logging
 import pickle
 from typing import ByteString, Dict, Union
 
+from conf.errors import no_kafka_producer
 from conf.helper.decorators import backoff
 from conf.settings import KAFKA_DEFAULT_PREFIX_TOPIC
 from django.conf import settings
@@ -18,7 +19,7 @@ class BillingKafkaProducer:
         self.servers = servers
         self.producer = self.get_producer()
 
-    @backoff()
+    @backoff(max_count_attempts=5)
     def get_producer(self):
         # bootstrap_servers: 'host[:port]' string (or list of 'host[:port]'
         return KafkaProducer(bootstrap_servers=self.servers)
@@ -30,7 +31,7 @@ class BillingKafkaProducer:
         key: Union[ByteString, str] = None, **kwargs
     ):
         if not self.producer:
-            logger.warning('Kafka producer not set.')
+            logger.warning(no_kafka_producer)
             return
 
         if key:

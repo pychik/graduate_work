@@ -1,3 +1,4 @@
+import http
 import json
 
 from rest_framework.test import APIRequestFactory, APITestCase
@@ -6,7 +7,7 @@ from rest_framework.test import APIRequestFactory, APITestCase
 class BaseApiTestCase(APITestCase):
     factory = APIRequestFactory()
 
-    def call_get_api(self, view, url, view_kwargs=None, expected_code=200, json_result=False):
+    def call_get_api(self, view, url, view_kwargs=None, expected_code=http.HTTPStatus.OK, json_result=False):
         return self._call_api(view, url, view_kwargs=view_kwargs, data=None, expected_code=expected_code,
                               method='GET', json_result=json_result)
 

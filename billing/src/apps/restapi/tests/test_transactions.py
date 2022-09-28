@@ -1,3 +1,4 @@
+import http
 from unittest import mock
 
 from apps.offer.models import Subscription
@@ -11,16 +12,14 @@ from django.shortcuts import reverse
 
 class TransactionTestCase(BaseApiTestCase):
 
-    # def setUp(self) -> None:
-    #     TransactionFactory.create_batch(50)
-
     def test_transaction_detail(self):
         transaction = TransactionFactory.create()
 
         view = TransactionDetailView
         view_kwargs = {'guid': transaction.guid}
         url = reverse('single-transaction', kwargs=view_kwargs)
-        response = self.call_get_api(view=view, view_kwargs=view_kwargs, url=url, expected_code=200, json_result=True)
+        response = self.call_get_api(view=view, view_kwargs=view_kwargs, url=url, expected_code=http.HTTPStatus.OK,
+                                     json_result=True)
         expected = dict(guid=str(transaction.guid),
                         user_id=transaction.user_id,
                         status=transaction.status,
@@ -44,7 +43,7 @@ class TransactionTestCase(BaseApiTestCase):
 
         view = TransactionListView
         url = reverse('user_transactions')
-        response = self.call_post_api(view=view, url=url, expected_code=200, data=data, json_result=True)
+        response = self.call_post_api(view=view, url=url, expected_code=http.HTTPStatus.OK, data=data, json_result=True)
 
         # Сравним количество транзакций пользователя в ответе и созданных
         expected = len(user_transactions)
@@ -59,7 +58,7 @@ class TransactionTestCase(BaseApiTestCase):
         query_params = dict(page=page, page_size=page_size)
         view = TransactionListView
         url = reverse_with_query_params('user_transactions', query_params=query_params)
-        response = self.call_post_api(view=view, url=url, expected_code=200, data=data, json_result=True)
+        response = self.call_post_api(view=view, url=url, expected_code=http.HTTPStatus.OK, data=data, json_result=True)
         response_len = len(response.get('results'))
         self.assertEqual(response_len, page_size)
 
@@ -85,7 +84,8 @@ class TransactionTestCase(BaseApiTestCase):
                 'recipient': {'account_id': '940659', 'gateway_id': '1998643'},
                 'refundable': False, 'status': 'pending', 'test': True}
 
-            response = self.call_post_api(view=view, url=url, expected_code=201, data=data, json_result=True)
+            response = self.call_post_api(view=view, url=url, expected_code=http.HTTPStatus.CREATED, data=data,
+                                          json_result=True)
         transaction_id = response.get('transaction_id')
         self.assertTrue(Transaction.objects.filter(guid=transaction_id).exists())
         self.assertTrue(UserSubscription.objects.filter(transaction__guid=transaction_id).exists())
