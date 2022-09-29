@@ -77,6 +77,12 @@ class UserSubscription(models.Model):
                                 )
 
     transaction = models.OneToOneField(Transaction, on_delete=models.DO_NOTHING, related_name='user_subscription')
+    notification_status = models.BooleanField(
+        verbose_name='Статус оповещения',
+        help_text='Включен если оповещение об скором окончании действующей подписки было отправлено. '
+                  '<br> * При удачном продлении действующей подписки, значение переводится в False',
+        default=False
+    )
 
     def __str__(self):
         return f'{self.user_id}: {self.subscription.name} : {self.status}'

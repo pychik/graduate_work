@@ -153,3 +153,5 @@ SHELL_PLUS = "ipython"
 
 
 REFUND_GRACE_PERIOD = {'days': 3}
+
+CHUNK_SIZE_DEFAULT = 50
