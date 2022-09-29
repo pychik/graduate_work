@@ -9,7 +9,6 @@ from apps.transactions.helpers import (
     cancellation_subscription_expiration,
     subscription_expiration_alert,
 )
-from conf.celery import TaskQueue, app
 
 
 @app.task(base=QueueOnce, queue=TaskQueue.QUEUE_DEFAULT)
@@ -17,7 +16,6 @@ def task_send_kafka(topic: str, data: dict):
     kafka = BillingKafkaProducer()
     kafka.push(topic=topic, value=data)
     logging.info(f'Sent to kafka topic {topic}')
-
 
 
 @app.task(ignore_result=True, queue=TaskQueue.QUEUE_DEFAULT)

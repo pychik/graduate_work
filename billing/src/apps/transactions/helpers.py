@@ -74,6 +74,7 @@ def subscription_expiration_alert(days: int = 2):
         for account in chunk:
             value = dict(
                 user_id=account.user_id,
+                message=account.subscription.name,
                 notification_type='billing_subscription_expires'
             )
             kafka_client.push('notification', value=value)
